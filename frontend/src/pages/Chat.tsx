@@ -24,7 +24,7 @@ export default function Chat() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [draft, setDraft] = useState('');
   const [otherTyping, setOtherTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<number | null>(null);
 
   const refreshConversations = async () => {
@@ -100,7 +100,8 @@ export default function Chat() {
   }, [id, user?._id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = messagesContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   const onTypingChange = (val: string) => {
@@ -199,7 +200,7 @@ export default function Chat() {
               <a className="btn ghost sm" href={`/listings/${activeConvo.listing._id}`}>View ad</a>
             </div>
 
-            <div className="chat-messages">
+            <div className="chat-messages" ref={messagesContainerRef}>
               {loadingMsgs ? <Loader inline /> : messages.map((m) => {
                 const mine = m.sender._id === user?._id;
                 return (
@@ -212,7 +213,6 @@ export default function Chat() {
               {otherTyping && (
                 <div className="bubble" style={{ opacity: .7 }}>typing…</div>
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             <div className="chat-input">
