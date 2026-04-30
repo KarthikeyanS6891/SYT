@@ -7,6 +7,7 @@ import favoriteRoutes from './favoriteRoutes.js';
 import messageRoutes from './messageRoutes.js';
 import adminRoutes from './adminRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
+import searchRoutes from './searchRoutes.js';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/favorites', favoriteRoutes);
 router.use('/messages', messageRoutes);
 router.use('/admin', adminRoutes);
 router.use('/uploads', uploadRoutes);
+router.use('/search', searchRoutes);
 
 export default router;

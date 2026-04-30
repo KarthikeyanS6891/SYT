@@ -1,23 +1,17 @@
-import { FC, useState, FormEvent } from 'react';
+import { FC } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logoutThunk } from '@/store/slices/authSlice';
 import { initials } from '@/utils/format';
 import { Logo } from '@/components/common/Logo';
+import { SearchAutocomplete } from './SearchAutocomplete';
 
 export const Navbar: FC = () => {
   const { user, isAdmin } = useAuth();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const unread = useAppSelector((s) => s.ui.unreadCount);
-  const [search, setSearch] = useState('');
-
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault();
-    const q = search.trim();
-    navigate(q ? `/?q=${encodeURIComponent(q)}` : '/');
-  };
 
   const handleLogout = async () => {
     await dispatch(logoutThunk());
@@ -31,14 +25,9 @@ export const Navbar: FC = () => {
           <Logo size={36} />
         </Link>
 
-        <form className="search" onSubmit={onSearch}>
-          <input
-            className="input"
-            placeholder="Search listings..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </form>
+        <div className="search">
+          <SearchAutocomplete />
+        </div>
 
         <div className="spacer" />
 
