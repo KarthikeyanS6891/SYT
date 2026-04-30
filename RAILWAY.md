@@ -60,10 +60,12 @@ and **frontend** — wired together with internal env-var references.
    and `backend/Dockerfile` correctly.
 4. **Networking → Generate Domain** → save the URL (looks like
    `https://syt-backend-production.up.railway.app`).
-5. **Variables → Raw Editor** — paste this and replace the placeholders:
+5. **Variables → Raw Editor** — paste this and replace the placeholders.
+   ⚠️ **Do NOT add `PORT=...`** — Railway injects its own `$PORT` and
+   the edge proxy routes only to that port. Our backend already reads
+   `process.env.PORT`, so leave it alone.
    ```
    NODE_ENV=production
-   PORT=5000
    API_PREFIX=/api/v1
 
    MONGODB_URI=${{Mongo.MONGO_URL}}
