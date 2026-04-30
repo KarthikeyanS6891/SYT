@@ -85,12 +85,21 @@ export interface ListingFilters {
   q?: string;
   category?: string;
   location?: string;
+  seller?: string;
   minPrice?: number;
   maxPrice?: number;
   sort?: 'latest' | 'price_asc' | 'price_desc' | 'popular';
   page?: number;
   limit?: number;
   status?: ListingStatus;
+}
+
+export interface PublicUser {
+  _id: string;
+  name: string;
+  avatar?: string;
+  location?: string;
+  createdAt: string;
 }
 
 export interface AuthResponse {

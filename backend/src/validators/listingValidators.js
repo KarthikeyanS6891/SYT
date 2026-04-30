@@ -28,6 +28,7 @@ export const listListingValidator = [
   query('q').optional().isString(),
   query('category').optional().isMongoId(),
   query('location').optional().isString(),
+  query('seller').optional().isMongoId(),
   query('minPrice').optional().isFloat({ min: 0 }),
   query('maxPrice').optional().isFloat({ min: 0 }),
   query('sort').optional().isIn(['latest', 'price_asc', 'price_desc', 'popular']),

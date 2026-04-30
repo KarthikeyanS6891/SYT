@@ -6,6 +6,7 @@ const parseFilters = (q) => ({
   q: q.q,
   category: q.category,
   location: q.location,
+  seller: q.seller,
   minPrice: q.minPrice !== undefined ? Number(q.minPrice) : undefined,
   maxPrice: q.maxPrice !== undefined ? Number(q.maxPrice) : undefined,
   sort: q.sort || 'latest',

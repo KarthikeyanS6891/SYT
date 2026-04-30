@@ -16,6 +16,7 @@ import Register from '@/pages/Register';
 import ListingDetails from '@/pages/ListingDetails';
 import PostAd from '@/pages/PostAd';
 import Profile from '@/pages/Profile';
+import PublicProfile from '@/pages/PublicProfile';
 import Chat from '@/pages/Chat';
 import MyListings from '@/pages/MyListings';
 import Favorites from '@/pages/Favorites';
@@ -48,6 +49,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/listings/:id" element={<ListingDetails />} />
+          <Route path="/users/:id" element={<PublicProfile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
