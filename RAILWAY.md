@@ -22,8 +22,17 @@ and **frontend** — wired together with internal env-var references.
 
 1. Open https://railway.app/dashboard and click **New Project**.
 2. Choose **Deploy from GitHub repo** → pick `KarthikeyanS6891/SYT`.
-3. Railway will detect a service. **Don't** click deploy yet — we have to
-   tell it which folder to build.
+3. Railway will auto-create a service and **immediately** start the
+   first build. **Expect this build to fail in ~1 second** — there is
+   no Dockerfile at the repo root, only inside `backend/` and
+   `frontend/`. That's normal; we'll fix it in the next step.
+
+> **If you see "Failed to build an image" / "Build failed in 1 second":**
+> click into the auto-created service, open
+> **Settings → Source → Root Directory**, enter `backend` (or `frontend`,
+> for the second service), then go back to **Deployments** and hit
+> **Redeploy** on the failed entry. The Root Directory tells Railway
+> which subfolder to chdir into before reading the Dockerfile.
 
 ---
 
@@ -41,11 +50,14 @@ and **frontend** — wired together with internal env-var references.
 
 ## 3. Configure the **backend** service
 
-1. Click the service Railway auto-created from the repo and rename it to
-   **backend** (settings ↗ name).
-2. **Settings → Source → Root Directory**: `backend`
-3. Railway will pick up `backend/railway.json` and `backend/Dockerfile`
-   automatically.
+1. Click the service Railway auto-created from the repo (Railway gives
+   it a random name like `gracious-love`). Rename it via
+   **Settings → General → Service Name → "backend"**.
+2. **Settings → Source → Root Directory**: `backend`  ← **this is the
+   fix for the 1-second build failure**
+3. **Deployments** tab → three-dot menu on the failed deploy →
+   **Redeploy**. This time Railway picks up `backend/railway.json`
+   and `backend/Dockerfile` correctly.
 4. **Networking → Generate Domain** → save the URL (looks like
    `https://syt-backend-production.up.railway.app`).
 5. **Variables → Raw Editor** — paste this and replace the placeholders:
