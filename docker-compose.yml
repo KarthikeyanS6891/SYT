@@ -19,7 +19,8 @@ services:
       MONGODB_URI: mongodb://mongo:27017/syt_marketplace
       PORT: 5000
       NODE_ENV: production
-      CORS_ORIGINS: http://localhost,http://localhost:80
+      # Allow the frontend (which now talks to the API directly) to call us
+      CORS_ORIGINS: http://localhost,http://localhost:80,http://localhost:5173
       PUBLIC_URL: http://localhost:5000
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     ports:
@@ -31,12 +32,16 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_BASE: /api/v1
+        # Frontend now hits the backend's public URL directly (no nginx reverse-proxy)
+        VITE_API_BASE: http://localhost:5000/api/v1
+        VITE_SOCKET_URL: http://localhost:5000
         VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     container_name: syt-frontend
     restart: unless-stopped
     depends_on:
       - backend
+    environment:
+      PORT: 80
     ports:
       - "80:80"
 
