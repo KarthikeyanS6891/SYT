@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { listingApi } from '@/services/listingService';
@@ -27,6 +27,7 @@ export default function ListingDetails() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setActiveImage(0);
     listingApi
       .get(id)
       .then(({ data }) => {
@@ -42,10 +43,30 @@ export default function ListingDetails() {
     listingApi.similar(id).then(({ data }) => setSimilar(data.items)).catch(() => null);
   }, [id, navigate]);
 
+  const total = listing?.images.length || 0;
+  const goPrev = useCallback(
+    () => setActiveImage((i) => (total === 0 ? 0 : (i - 1 + total) % total)),
+    [total]
+  );
+  const goNext = useCallback(
+    () => setActiveImage((i) => (total === 0 ? 0 : (i + 1) % total)),
+    [total]
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') goPrev();
+      else if (e.key === 'ArrowRight') goNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [goPrev, goNext]);
+
   if (loading || !listing) return <Loader />;
 
   const seller = listing.seller as User;
   const isOwner = user && seller && user._id === seller._id;
+  const cover = listing.images[activeImage]?.url;
 
   const toggleFav = async () => {
     if (!user) {
@@ -58,6 +79,20 @@ export default function ListingDetails() {
       setIsFav(!isFav);
     } catch (err) {
       toast.error(errorMessage(err));
+    }
+  };
+
+  const sharePage = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: listing.title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copied to clipboard');
+      }
+    } catch {
+      /* user cancelled */
     }
   };
 
@@ -80,105 +115,156 @@ export default function ListingDetails() {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24 }}>
-      <div>
-        <div className="gallery">
-          <div
-            className="main"
-            style={{
-              backgroundImage: listing.images[activeImage]?.url
-                ? `url(${listing.images[activeImage].url})`
-                : undefined,
-            }}
-          />
-          {listing.images.length > 1 && (
-            <div className="thumbs">
-              {listing.images.slice(0, 5).map((img, i) => (
-                <div
+    <div className="listing-page">
+      <div className="listing-main">
+        <div className="gallery-v2">
+          <div className="gallery-stage">
+            {cover ? (
+              <img src={cover} alt={listing.title} className="gallery-img" />
+            ) : (
+              <div className="gallery-empty">No image</div>
+            )}
+            {total > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="gallery-nav prev"
+                  onClick={goPrev}
+                  aria-label="Previous image"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  className="gallery-nav next"
+                  onClick={goNext}
+                  aria-label="Next image"
+                >
+                  ›
+                </button>
+                <span className="gallery-counter">
+                  {activeImage + 1} / {total}
+                </span>
+              </>
+            )}
+            {listing.boosted && <span className="badge gallery-tag">★ Featured</span>}
+          </div>
+
+          {total > 1 && (
+            <div className="gallery-strip">
+              {listing.images.map((img, i) => (
+                <button
                   key={i}
-                  className={`thumb ${i === activeImage ? 'active' : ''}`}
+                  type="button"
+                  className={`gallery-thumb ${i === activeImage ? 'active' : ''}`}
                   style={{ backgroundImage: `url(${img.url})` }}
                   onClick={() => setActiveImage(i)}
+                  aria-label={`View image ${i + 1}`}
                 />
               ))}
             </div>
           )}
         </div>
 
-        <div className="card" style={{ marginTop: 16 }}>
-          <div className="row between">
-            <div>
-              <h1 style={{ margin: 0, fontSize: 24 }}>{formatPrice(listing.price, listing.currency)}</h1>
-              <h2 style={{ margin: '4px 0', fontSize: 18, fontWeight: 500 }}>{listing.title}</h2>
-              <div className="muted text-sm">
-                {listing.location} · {timeAgo(listing.createdAt)}
-              </div>
-            </div>
-            <div className="row">
-              {listing.boosted && <span className="badge">★ Featured</span>}
-              <span className="badge muted">{listing.condition}</span>
-            </div>
-          </div>
-
-          <h3 style={{ marginTop: 20 }}>Description</h3>
-          <p style={{ whiteSpace: 'pre-wrap' }}>{listing.description}</p>
-
-          <div className="row" style={{ marginTop: 16, gap: 8 }}>
-            <Button onClick={toggleFav} variant="secondary">
-              {isFav ? '♥ Saved' : '♡ Save'}
-            </Button>
+        <div className="card listing-description">
+          <h3 style={{ margin: '0 0 8px' }}>Description</h3>
+          <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{listing.description}</p>
+          <div className="row" style={{ marginTop: 16, gap: 8, flexWrap: 'wrap' }}>
+            <span className="badge muted">{listing.condition}</span>
             {isOwner && (
-              <Button onClick={() => navigate(`/post/${listing._id}`)} variant="ghost">
-                Edit
+              <Button onClick={() => navigate(`/post/${listing._id}`)} size="sm" variant="secondary">
+                Edit listing
               </Button>
             )}
           </div>
         </div>
       </div>
 
-      <aside className="col">
+      <aside className="listing-sidebar">
+        <div className="card price-card">
+          <div className="row between" style={{ alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="price-big">
+                <span className="rupee">₹</span>{' '}
+                {formatPrice(listing.price, listing.currency).replace(/[^\d,.]/g, '').trim()}
+              </div>
+              <div className="price-title">{listing.title}</div>
+            </div>
+            <div className="row" style={{ gap: 6 }}>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={sharePage}
+                aria-label="Share listing"
+                title="Share"
+              >
+                ↗
+              </button>
+              <button
+                type="button"
+                className={`icon-btn ${isFav ? 'fav-active' : ''}`}
+                onClick={toggleFav}
+                aria-label={isFav ? 'Remove from favorites' : 'Save listing'}
+                title={isFav ? 'Saved' : 'Save'}
+              >
+                {isFav ? '♥' : '♡'}
+              </button>
+            </div>
+          </div>
+          <div className="price-meta">
+            <span>{listing.location}</span>
+            <span>{timeAgo(listing.createdAt)}</span>
+          </div>
+        </div>
+
         <div className="card">
-          <div className="row" style={{ gap: 12 }}>
+          <Link
+            to={`/users/${seller._id}`}
+            className="row"
+            style={{ gap: 12, color: 'inherit' }}
+          >
             <span
               className="avatar"
               style={{
-                width: 48, height: 48,
+                width: 52, height: 52, fontSize: 16,
                 ...(seller.avatar ? { backgroundImage: `url(${seller.avatar})` } : {}),
               }}
             >
               {!seller.avatar && initials(seller.name)}
             </span>
-            <div>
-              <div className="bold">{seller.name}</div>
+            <div style={{ flex: 1 }}>
+              <div className="text-xs muted">Posted by</div>
+              <div className="bold" style={{ fontSize: 15 }}>{seller.name}</div>
               <div className="text-xs muted">Member since {timeAgo(seller.createdAt)}</div>
             </div>
-          </div>
+            <span className="muted">›</span>
+          </Link>
 
           {!isOwner && (
             <>
               <textarea
                 className="textarea"
-                style={{ marginTop: 12 }}
+                style={{ marginTop: 14 }}
                 value={contactMsg}
                 onChange={(e) => setContactMsg(e.target.value)}
                 placeholder="Type a message"
                 rows={3}
               />
               <Button block onClick={sendMessage} loading={sending} style={{ marginTop: 8 }}>
-                Send Message
+                Chat with seller
               </Button>
             </>
           )}
-          {seller.phone && (
-            <div className="text-sm" style={{ marginTop: 12 }}>
-              <Link to={`/users/${seller._id}`} className="muted">View seller profile</Link>
-            </div>
-          )}
+        </div>
+
+        <div className="card posted-in">
+          <h4 style={{ margin: '0 0 6px', fontSize: 15 }}>Posted in</h4>
+          <div className="muted text-sm">{listing.location}</div>
         </div>
       </aside>
 
       {similar.length > 0 && (
-        <div style={{ gridColumn: '1 / -1', marginTop: 16 }}>
+        <div className="listing-similar">
           <h2 className="title">Similar listings</h2>
           <ListingGrid items={similar} />
         </div>
