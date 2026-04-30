@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logoutThunk } from '@/store/slices/authSlice';
+import { openAuthModal } from '@/store/slices/uiSlice';
 import { initials } from '@/utils/format';
 import { Logo } from '@/components/common/Logo';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { SearchAutocomplete } from './SearchAutocomplete';
 
 export const Navbar: FC = () => {
@@ -15,7 +17,7 @@ export const Navbar: FC = () => {
 
   const handleLogout = async () => {
     await dispatch(logoutThunk());
-    navigate('/login');
+    navigate('/');
   };
 
   return (
@@ -32,6 +34,7 @@ export const Navbar: FC = () => {
         <div className="spacer" />
 
         <div className="nav-links">
+          <ThemeToggle />
           {user ? (
             <>
               <Link to="/post" className="btn sm">+ Post Ad</Link>
@@ -52,8 +55,20 @@ export const Navbar: FC = () => {
             </>
           ) : (
             <>
-              <Link to="/login" className="btn ghost sm">Login</Link>
-              <Link to="/register" className="btn sm">Sign up</Link>
+              <button
+                type="button"
+                onClick={() => dispatch(openAuthModal('login'))}
+                className="btn ghost sm"
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => dispatch(openAuthModal('register'))}
+                className="btn sm"
+              >
+                Sign up
+              </button>
             </>
           )}
         </div>

@@ -9,12 +9,15 @@ import { listingApi, categoryApi } from '@/services/listingService';
 import { favoriteApi } from '@/services/favoriteService';
 import { errorMessage } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { useAppDispatch } from '@/store';
+import { openAuthModal } from '@/store/slices/uiSlice';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { Category, Listing, ListingFilters, Pagination } from '@/types';
 
 export default function Home() {
   const [params, setParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
+  const dispatch = useAppDispatch();
   const [items, setItems] = useState<Listing[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [meta, setMeta] = useState<Pagination | null>(null);
@@ -69,7 +72,7 @@ export default function Home() {
 
   const toggleFavorite = async (id: string, next: boolean) => {
     if (!isAuthenticated) {
-      toast.error('Login to save favorites');
+      dispatch(openAuthModal('login'));
       return;
     }
     try {

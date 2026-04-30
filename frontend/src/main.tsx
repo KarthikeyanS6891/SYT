@@ -16,7 +16,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           position="top-right"
           toastOptions={{
             duration: 3000,
-            style: { fontSize: 13, borderRadius: 10 },
+            style: {
+              fontSize: 13,
+              borderRadius: 10,
+              background: 'var(--color-card)',
+              color: 'var(--color-text)',
+              border: '1px solid var(--color-border)',
+            },
           }}
         />
       </BrowserRouter>

@@ -12,6 +12,16 @@
     <meta property="og:description" content="Buy and sell on the friendliest classifieds marketplace." />
     <meta property="og:image" content="/favicon.svg" />
     <title>SYT - Sell Your Things</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('syt:theme');
+          var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = (stored === 'light' || stored === 'dark') ? stored : (systemDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>

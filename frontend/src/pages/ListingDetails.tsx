@@ -9,12 +9,15 @@ import { Loader } from '@/components/common/Loader';
 import { Button } from '@/components/common/Button';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { useAuth } from '@/hooks/useAuth';
+import { useAppDispatch } from '@/store';
+import { openAuthModal } from '@/store/slices/uiSlice';
 import { formatPrice, timeAgo, initials } from '@/utils/format';
 import type { Listing, User } from '@/types';
 
 export default function ListingDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [similar, setSimilar] = useState<Listing[]>([]);
@@ -70,7 +73,7 @@ export default function ListingDetails() {
 
   const toggleFav = async () => {
     if (!user) {
-      navigate('/login');
+      dispatch(openAuthModal('login'));
       return;
     }
     try {
@@ -98,7 +101,7 @@ export default function ListingDetails() {
 
   const sendMessage = async () => {
     if (!user) {
-      navigate('/login');
+      dispatch(openAuthModal('login'));
       return;
     }
     if (!contactMsg.trim()) return;

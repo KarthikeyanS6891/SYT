@@ -1,10 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type AuthModalMode = 'login' | 'register';
+
 interface UiState {
   unreadCount: number;
+  authModal: { open: boolean; mode: AuthModalMode };
+  theme: 'light' | 'dark';
 }
 
-const initialState: UiState = { unreadCount: 0 };
+const initialState: UiState = {
+  unreadCount: 0,
+  authModal: { open: false, mode: 'login' },
+  theme: 'light',
+};
 
 const uiSlice = createSlice({
   name: 'ui',
@@ -19,8 +27,29 @@ const uiSlice = createSlice({
     resetUnread(state) {
       state.unreadCount = 0;
     },
+    openAuthModal(state, action: PayloadAction<AuthModalMode | undefined>) {
+      state.authModal.open = true;
+      state.authModal.mode = action.payload || 'login';
+    },
+    closeAuthModal(state) {
+      state.authModal.open = false;
+    },
+    setAuthMode(state, action: PayloadAction<AuthModalMode>) {
+      state.authModal.mode = action.payload;
+    },
+    setTheme(state, action: PayloadAction<'light' | 'dark'>) {
+      state.theme = action.payload;
+    },
   },
 });
 
-export const { setUnread, bumpUnread, resetUnread } = uiSlice.actions;
+export const {
+  setUnread,
+  bumpUnread,
+  resetUnread,
+  openAuthModal,
+  closeAuthModal,
+  setAuthMode,
+  setTheme,
+} = uiSlice.actions;
 export default uiSlice.reducer;
