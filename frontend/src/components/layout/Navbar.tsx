@@ -28,7 +28,7 @@ export const Navbar: FC = () => {
     <header className="navbar">
       <div className="container navbar-inner">
         <Link to="/" className="brand" aria-label="SYT - Sell Your Things home">
-          <Logo size={32} />
+          <Logo size={36} />
         </Link>
 
         <form className="search" onSubmit={onSearch}>

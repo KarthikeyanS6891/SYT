@@ -39,10 +39,12 @@ export default function Register() {
 
   return (
     <div style={{ maxWidth: 420, margin: '40px auto' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
-        <Logo size={56} showWordmark={false} />
-        <div style={{ marginTop: 10, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>SYT</div>
-        <div className="muted text-sm">Sell Your Things</div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
+        <Logo size={64} showWordmark={false} />
+        <div style={{ marginTop: 10, fontWeight: 900, fontSize: 22, letterSpacing: -0.5 }}>
+          S<span style={{ color: 'var(--color-primary)' }}>↑</span>T
+        </div>
+        <div className="muted text-xs" style={{ letterSpacing: 2, marginTop: 2 }}>SELL YOUR THINGS</div>
       </div>
       <div className="card">
         <h2 className="title">Create your account</h2>
