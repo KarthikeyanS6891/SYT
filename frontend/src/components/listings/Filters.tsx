@@ -1,28 +1,16 @@
 import { FC } from 'react';
-import { Category, ListingFilters } from '@/types';
+import { ListingFilters } from '@/types';
 
 interface Props {
   filters: ListingFilters;
-  categories: Category[];
   onChange: (next: ListingFilters) => void;
 }
 
-export const Filters: FC<Props> = ({ filters, categories, onChange }) => {
+export const Filters: FC<Props> = ({ filters, onChange }) => {
   const update = (patch: Partial<ListingFilters>) => onChange({ ...filters, ...patch, page: 1 });
 
   return (
     <div className="filters">
-      <select
-        className="select"
-        value={filters.category || ''}
-        onChange={(e) => update({ category: e.target.value || undefined })}
-      >
-        <option value="">All categories</option>
-        {categories.map((c) => (
-          <option key={c._id} value={c._id}>{c.icon} {c.name}</option>
-        ))}
-      </select>
-
       <input
         className="input"
         placeholder="Location"

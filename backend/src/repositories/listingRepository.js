@@ -1,9 +1,11 @@
 import { Listing } from '../models/Listing.js';
+import { Category } from '../models/Category.js';
 
-const buildFilter = ({ q, category, location, minPrice, maxPrice, status, seller }) => {
+const buildFilter = ({ q, categoryIds, location, minPrice, maxPrice, status, seller }) => {
   const filter = {};
   if (status) filter.status = status;
-  if (category) filter.category = category;
+  if (categoryIds && categoryIds.length === 1) filter.category = categoryIds[0];
+  else if (categoryIds && categoryIds.length > 1) filter.category = { $in: categoryIds };
   if (seller) filter.seller = seller;
   if (location) filter.location = { $regex: location, $options: 'i' };
   if (minPrice !== undefined || maxPrice !== undefined) {
@@ -13,6 +15,12 @@ const buildFilter = ({ q, category, location, minPrice, maxPrice, status, seller
   }
   if (q) filter.$text = { $search: q };
   return filter;
+};
+
+const expandCategoryWithDescendants = async (category) => {
+  if (!category) return null;
+  const children = await Category.find({ parent: category }).select('_id').lean();
+  return [category, ...children.map((c) => String(c._id))];
 };
 
 const buildSort = (sort, hasTextSearch) => {
@@ -49,7 +57,8 @@ export const listingRepository = {
   incrementViews: (id) => Listing.findByIdAndUpdate(id, { $inc: { views: 1 } }),
 
   list: async ({ page = 1, limit = 12, sort = 'latest', ...filters }) => {
-    const filter = buildFilter(filters);
+    const categoryIds = await expandCategoryWithDescendants(filters.category);
+    const filter = buildFilter({ ...filters, categoryIds });
     const hasText = !!filter.$text;
     const sortBy = buildSort(sort, hasText);
 

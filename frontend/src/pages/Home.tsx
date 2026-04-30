@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Filters } from '@/components/listings/Filters';
+import { CategoryMegaMenu } from '@/components/listings/CategoryMegaMenu';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { Loader } from '@/components/common/Loader';
 import { listingApi, categoryApi } from '@/services/listingService';
@@ -82,7 +83,12 @@ export default function Home() {
 
   return (
     <>
-      <Filters filters={filters} categories={categories} onChange={updateFilters} />
+      <CategoryMegaMenu
+        categories={categories}
+        selectedCategory={filters.category}
+        onSelect={(id) => updateFilters({ ...filters, category: id })}
+      />
+      <Filters filters={filters} onChange={updateFilters} />
       {filters.q && (
         <div className="text-sm muted" style={{ marginBottom: 12 }}>
           Showing results for "<b>{filters.q}</b>"
