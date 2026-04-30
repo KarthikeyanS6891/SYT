@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logoutThunk } from '@/store/slices/authSlice';
 import { initials } from '@/utils/format';
+import { Logo } from '@/components/common/Logo';
 
 export const Navbar: FC = () => {
   const { user, isAdmin } = useAuth();
@@ -26,7 +27,9 @@ export const Navbar: FC = () => {
   return (
     <header className="navbar">
       <div className="container navbar-inner">
-        <Link to="/" className="brand">SYT</Link>
+        <Link to="/" className="brand" aria-label="SYT - Sell Your Things home">
+          <Logo size={32} />
+        </Link>
 
         <form className="search" onSubmit={onSearch}>
           <input

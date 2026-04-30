@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { loginThunk } from '@/store/slices/authSlice';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
+import { Logo } from '@/components/common/Logo';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 interface FormData {
@@ -37,8 +38,13 @@ export default function Login() {
 
   return (
     <div style={{ maxWidth: 380, margin: '40px auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
+        <Logo size={56} showWordmark={false} />
+        <div style={{ marginTop: 10, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>SYT</div>
+        <div className="muted text-sm">Sell Your Things</div>
+      </div>
       <div className="card">
-        <h2 className="title">Login</h2>
+        <h2 className="title">Welcome back</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
             label="Email"

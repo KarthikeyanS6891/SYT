@@ -114,9 +114,10 @@ img { max-width: 100%; display: block; }
   height: 60px; display: flex; align-items: center; gap: 16px;
 }
 .navbar .brand {
-  font-size: 20px; font-weight: 800; color: var(--color-primary);
-  letter-spacing: -.5px;
+  display: inline-flex; align-items: center; line-height: 0;
+  flex-shrink: 0;
 }
+.navbar .brand svg { display: block; }
 .navbar .search {
   flex: 1; max-width: 520px;
 }

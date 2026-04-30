@@ -1,0 +1,19 @@
+<svg width="124" height="36" viewBox="0 0 124 36" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYT - Sell Your Things">
+  <defs>
+    <linearGradient id="syt-mark-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff8c42"/>
+      <stop offset="100%" stop-color="#e54b14"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(2,2)">
+    <path d="M20 0 L32 12 V26 c0 2.2 -1.8 4 -4 4 H4 c-2.2 0 -4 -1.8 -4 -4 V4 c0 -2.2 1.8 -4 4 -4 Z"
+          fill="url(#syt-mark-bg)"/>
+    <circle cx="25" cy="8" r="1.7" fill="#ffffff"/>
+    <text x="14" y="24"
+          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-weight="900" font-size="20" fill="#ffffff" text-anchor="middle">S</text>
+  </g>
+  <text x="42" y="26"
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-weight="900" font-size="22" fill="#1f2937" letter-spacing="-1">SYT</text>
+</svg>

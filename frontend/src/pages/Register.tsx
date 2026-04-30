@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { registerThunk } from '@/store/slices/authSlice';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
+import { Logo } from '@/components/common/Logo';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 interface FormData {
@@ -38,6 +39,11 @@ export default function Register() {
 
   return (
     <div style={{ maxWidth: 420, margin: '40px auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
+        <Logo size={56} showWordmark={false} />
+        <div style={{ marginTop: 10, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>SYT</div>
+        <div className="muted text-sm">Sell Your Things</div>
+      </div>
       <div className="card">
         <h2 className="title">Create your account</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
