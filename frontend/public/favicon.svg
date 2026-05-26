@@ -1,31 +1,33 @@
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYT - Sell Your Things">
   <defs>
-    <linearGradient id="syt-fav-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="syt-fav-bg" x1="20%" y1="0%" x2="80%" y2="100%">
       <stop offset="0%" stop-color="#ffa15c"/>
-      <stop offset="60%" stop-color="#ff6b35"/>
-      <stop offset="100%" stop-color="#d63c0a"/>
+      <stop offset="55%" stop-color="#ff6b35"/>
+      <stop offset="100%" stop-color="#cf3a08"/>
     </linearGradient>
-    <radialGradient id="syt-fav-gloss" cx="30%" cy="20%" r="60%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="syt-fav-shine" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
   </defs>
 
-  <path d="M40 4 L60 24 V52 c0 4.4 -3.6 8 -8 8 H12 c-4.4 0 -8 -3.6 -8 -8 V12 c0 -4.4 3.6 -8 8 -8 Z"
-        fill="url(#syt-fav-bg)"/>
-  <path d="M40 4 L60 24 V52 c0 4.4 -3.6 8 -8 8 H12 c-4.4 0 -8 -3.6 -8 -8 V12 c0 -4.4 3.6 -8 8 -8 Z"
-        fill="url(#syt-fav-gloss)"/>
+  <!-- Rounded-square stage -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#syt-fav-bg)"/>
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#syt-fav-shine)"/>
 
-  <circle cx="50" cy="14" r="3.2" fill="#ffffff"/>
-  <circle cx="50" cy="14" r="1.1" fill="#ff6b35"/>
+  <!-- Up-right exchange chevron (sell flow) -->
+  <g stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
+    <path d="M 39 18 L 47 13 L 47 21"/>
+  </g>
 
-  <ellipse cx="22" cy="32" rx="4" ry="4.5" fill="#ffffff"/>
-  <ellipse cx="40" cy="32" rx="4" ry="4.5" fill="#ffffff"/>
-  <circle cx="23.2" cy="31.2" r="1.5" fill="#1f2937"/>
-  <circle cx="41.2" cy="31.2" r="1.5" fill="#1f2937"/>
+  <!-- Bold S monogram -->
+  <text x="32" y="48"
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-weight="900" font-size="40" fill="#ffffff" text-anchor="middle"
+        letter-spacing="-2">S</text>
 
-  <path d="M17 42 Q32 56 47 42"
-        stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" fill="none"/>
-  <path d="M45 41.5 L50 38 L48.5 43"
-        stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Down-left exchange chevron (buy flow) -->
+  <g stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
+    <path d="M 25 46 L 17 51 L 17 43"/>
+  </g>
 </svg>

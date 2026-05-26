@@ -1,51 +1,56 @@
-<svg width="146" height="40" viewBox="0 0 146 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYT - Sell Your Things">
+<svg width="156" height="44" viewBox="0 0 156 44" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYT - Sell Your Things">
   <defs>
-    <linearGradient id="syt-logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="syt-logo-bg" x1="20%" y1="0%" x2="80%" y2="100%">
       <stop offset="0%" stop-color="#ffa15c"/>
-      <stop offset="60%" stop-color="#ff6b35"/>
-      <stop offset="100%" stop-color="#d63c0a"/>
+      <stop offset="55%" stop-color="#ff6b35"/>
+      <stop offset="100%" stop-color="#cf3a08"/>
     </linearGradient>
-    <radialGradient id="syt-logo-gloss" cx="30%" cy="20%" r="60%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="syt-logo-shine" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
   </defs>
 
+  <!-- Mark: 36x36 -->
   <g transform="translate(2,2)">
-    <path d="M22 0 L36 14 V30 c0 2.8 -2.2 5 -5 5 H5 c-2.8 0 -5 -2.2 -5 -5 V5 c0 -2.8 2.2 -5 5 -5 Z"
-          fill="url(#syt-logo-bg)"/>
-    <path d="M22 0 L36 14 V30 c0 2.8 -2.2 5 -5 5 H5 c-2.8 0 -5 -2.2 -5 -5 V5 c0 -2.8 2.2 -5 5 -5 Z"
-          fill="url(#syt-logo-gloss)"/>
+    <rect x="0" y="0" width="36" height="36" rx="9" fill="url(#syt-logo-bg)"/>
+    <rect x="0" y="0" width="36" height="36" rx="9" fill="url(#syt-logo-shine)"/>
 
-    <circle cx="29" cy="7" r="1.9" fill="#ffffff"/>
-    <circle cx="29" cy="7" r="0.7" fill="#ff6b35"/>
-
-    <ellipse cx="13" cy="18" rx="2.4" ry="2.7" fill="#ffffff"/>
-    <ellipse cx="24" cy="18" rx="2.4" ry="2.7" fill="#ffffff"/>
-    <circle cx="13.6" cy="17.6" r="0.9" fill="#1f2937"/>
-    <circle cx="24.6" cy="17.6" r="0.9" fill="#1f2937"/>
-
-    <path d="M9 24 Q18.5 32 28 24"
-          stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-    <path d="M27 23.6 L30 21.5 L29 25"
-          stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  </g>
-
-  <g transform="translate(50,0)">
-    <text x="0" y="29"
-          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-          font-weight="900" font-size="26" fill="#1f2937" letter-spacing="-1">S</text>
-    <g transform="translate(20,4)" stroke="#ff6b35" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <path d="M2 22 L10 4 L18 22"/>
-      <path d="M10 4 L10 26"/>
-      <path d="M6 9 L10 4 L14 9"/>
+    <g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
+      <path d="M 22 10 L 27 7 L 27 12"/>
     </g>
-    <text x="44" y="29"
+
+    <text x="18" y="27"
           font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-          font-weight="900" font-size="26" fill="#1f2937" letter-spacing="-1">T</text>
+          font-weight="900" font-size="23" fill="#ffffff" text-anchor="middle"
+          letter-spacing="-1.2">S</text>
+
+    <g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
+      <path d="M 14 26 L 9 29 L 9 24"/>
+    </g>
   </g>
 
-  <text x="50" y="38"
+  <!-- Wordmark: S [arrow-Y] T -->
+  <g transform="translate(46, 4)">
+    <text x="0" y="25"
+          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-weight="900" font-size="24" fill="#1f2937" letter-spacing="-1">S</text>
+
+    <!-- Y as an upward chevron -->
+    <g transform="translate(19, 4)"
+       stroke="#ff6b35" stroke-width="3.4"
+       stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M 1 20 L 9 4 L 17 20"/>
+      <path d="M 9 4 L 9 23"/>
+    </g>
+
+    <text x="44" y="25"
+          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-weight="900" font-size="24" fill="#1f2937" letter-spacing="-1">T</text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="46" y="40"
         font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-        font-weight="600" font-size="7" fill="#6b7280" letter-spacing="2">SELL YOUR THINGS</text>
+        font-weight="700" font-size="7" fill="#6b7280" letter-spacing="2.4">SELL YOUR THINGS</text>
 </svg>
