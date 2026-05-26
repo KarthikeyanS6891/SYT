@@ -181,7 +181,10 @@ const buildListings = (users, cats) => {
       status: 'published', boosted: true,
       images: [
         { url: img('scooter,honda,activa', 101) },
-        { url: img('scooter,parked', 102) },
+        { url: img('scooter,parked,street', 102) },
+        { url: img('scooter,dashboard,speedometer', 103) },
+        { url: img('scooter,side,profile', 104) },
+        { url: img('scooter,helmet,riding', 105) },
       ],
     },
     {
@@ -191,7 +194,10 @@ const buildListings = (users, cats) => {
       status: 'published', boosted: true,
       images: [
         { url: img('macbook,laptop,apple', 201) },
-        { url: img('laptop,workspace', 202) },
+        { url: img('laptop,workspace,desk', 202) },
+        { url: img('macbook,keyboard,closeup', 203) },
+        { url: img('laptop,screen,display', 204) },
+        { url: img('macbook,box,packaging', 205) },
       ],
     },
     {
@@ -202,6 +208,9 @@ const buildListings = (users, cats) => {
       images: [
         { url: img('apartment,building,modern', 301) },
         { url: img('living,room,interior', 302) },
+        { url: img('bedroom,interior,modern', 303) },
+        { url: img('kitchen,modular,interior', 304) },
+        { url: img('balcony,view,apartment', 305) },
       ],
     },
     {
@@ -209,7 +218,12 @@ const buildListings = (users, cats) => {
       description: 'IKEA Friheten 3-seater, 1 year used. Clean, no stains. Pickup only.',
       category: cat('sofa-dining'), price: 18000, location: 'Bengaluru', condition: 'used',
       status: 'published',
-      images: [{ url: img('sofa,couch,grey,living-room', 401) }],
+      images: [
+        { url: img('sofa,couch,grey,living-room', 401) },
+        { url: img('sofa,fabric,texture', 402) },
+        { url: img('sofa,cushion,detail', 403) },
+        { url: img('living,room,minimalist', 404) },
+      ],
     },
     {
       seller: u(2), title: 'iPhone 13 Pro - 128GB Sierra Blue',
@@ -219,6 +233,9 @@ const buildListings = (users, cats) => {
       images: [
         { url: img('iphone,smartphone,blue', 501) },
         { url: img('iphone,box,unboxing', 502) },
+        { url: img('iphone,camera,closeup', 503) },
+        { url: img('iphone,screen,apps', 504) },
+        { url: img('smartphone,charger,accessories', 505) },
       ],
     },
     {
@@ -228,7 +245,10 @@ const buildListings = (users, cats) => {
       status: 'published',
       images: [
         { url: img('motorcycle,royal-enfield,bike', 601) },
-        { url: img('motorbike,classic', 602) },
+        { url: img('motorbike,classic,vintage', 602) },
+        { url: img('motorcycle,engine,detail', 603) },
+        { url: img('motorbike,headlight,chrome', 604) },
+        { url: img('motorcycle,road,riding', 605) },
       ],
     },
     {
@@ -236,35 +256,61 @@ const buildListings = (users, cats) => {
       description: 'Wireless ANC headphones, used <3 months. With case.',
       category: cat('tvs-video-audio'), price: 22000, location: 'Bengaluru', condition: 'used',
       status: 'published',
-      images: [{ url: img('headphones,sony,wireless', 701) }],
+      images: [
+        { url: img('headphones,sony,wireless', 701) },
+        { url: img('headphones,black,studio', 702) },
+        { url: img('headphones,case,travel', 703) },
+        { url: img('headphones,music,listening', 704) },
+      ],
     },
     {
       seller: u(2), title: 'Treadmill - Powermax MFT-2200',
       description: 'Foldable home treadmill, lightly used. Perfect for daily walks/runs.',
       category: cat('gym-fitness'), price: 24000, location: 'Delhi', condition: 'used',
       status: 'published',
-      images: [{ url: img('treadmill,gym,fitness', 801) }],
+      images: [
+        { url: img('treadmill,gym,fitness', 801) },
+        { url: img('treadmill,home,running', 802) },
+        { url: img('treadmill,console,display', 803) },
+        { url: img('treadmill,folded,storage', 804) },
+      ],
     },
     {
       seller: u(3), title: 'Engineering textbooks bundle',
       description: 'Set of 8 BE/BTech textbooks, mostly CSE. Highlights but no torn pages.',
       category: cat('books'), price: 1200, location: 'Chennai', condition: 'used',
       status: 'published',
-      images: [{ url: img('books,textbook,study', 901) }],
+      images: [
+        { url: img('books,textbook,study', 901) },
+        { url: img('books,stack,library', 902) },
+        { url: img('book,pages,reading', 903) },
+        { url: img('engineering,books,desk', 904) },
+      ],
     },
     {
       seller: u(1), title: 'Golden Retriever Puppy - 2 months',
       description: 'KCI registered, vaccinated, dewormed. Genuine buyers only.',
       category: cat('dogs'), price: 28000, location: 'Bengaluru', condition: 'new',
       status: 'published',
-      images: [{ url: img('golden-retriever,puppy,dog', 1001) }],
+      images: [
+        { url: img('golden-retriever,puppy,dog', 1001) },
+        { url: img('puppy,playing,grass', 1002) },
+        { url: img('golden-retriever,cute,paws', 1003) },
+        { url: img('puppy,sleeping,cute', 1004) },
+        { url: img('dog,outdoor,happy', 1005) },
+      ],
     },
     {
       seller: u(2), title: 'Office desk + ergonomic chair combo',
       description: 'Work-from-home setup. Both items for one price.',
       category: cat('other-household'), price: 9500, location: 'Delhi', condition: 'used',
       status: 'published',
-      images: [{ url: img('office,desk,chair,workspace', 1101) }],
+      images: [
+        { url: img('office,desk,chair,workspace', 1101) },
+        { url: img('ergonomic,chair,office', 1102) },
+        { url: img('home,office,setup', 1103) },
+        { url: img('desk,monitor,workspace', 1104) },
+      ],
     },
     {
       seller: u(3), title: 'Maruti Swift VXI 2019 - Petrol',
@@ -274,6 +320,9 @@ const buildListings = (users, cats) => {
       images: [
         { url: img('hatchback,car,red', 1201) },
         { url: img('car,interior,dashboard', 1202) },
+        { url: img('car,steering,wheel', 1203) },
+        { url: img('car,seats,leather', 1204) },
+        { url: img('car,back,trunk', 1205) },
       ],
     },
   ];
