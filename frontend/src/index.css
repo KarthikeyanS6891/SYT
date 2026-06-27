@@ -816,3 +816,29 @@ img { max-width: 100%; display: block; }
   .gallery { grid-template-columns: 1fr; }
   .filters .input, .filters .select { max-width: none; flex: 1 1 140px; }
 }
+
+/* Maps (Leaflet) */
+.map-canvas {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 280px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-bg-soft);
+}
+.map-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.location-picker .map-actions { margin-bottom: 8px; }
+.listing-map { margin-top: 10px; }
+.listing-map .map-canvas { height: 200px; }
+.listing-map .map-actions { margin-top: 8px; }
+.map-link { color: var(--color-blue); font-size: 13px; font-weight: 500; }
+.map-link:hover { text-decoration: underline; }
+
+[data-theme="dark"] .leaflet-layer,
+[data-theme="dark"] .leaflet-control-zoom-in,
+[data-theme="dark"] .leaflet-control-zoom-out,
+[data-theme="dark"] .leaflet-control-attribution {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}

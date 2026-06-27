@@ -8,6 +8,24 @@ const imageSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const geoSchema = new mongoose.Schema(
+  {
+    type: { type: String, enum: ['Point'], required: true },
+    coordinates: {
+      // GeoJSON order: [longitude, latitude]
+      type: [Number],
+      required: true,
+      validate: {
+        validator: (v) =>
+          Array.isArray(v) && v.length === 2 &&
+          v[0] >= -180 && v[0] <= 180 && v[1] >= -90 && v[1] <= 90,
+        message: 'coordinates must be [longitude, latitude]',
+      },
+    },
+  },
+  { _id: false }
+);
+
 const listingSchema = new mongoose.Schema(
   {
     seller: {
@@ -28,6 +46,7 @@ const listingSchema = new mongoose.Schema(
     currency: { type: String, default: 'INR' },
     condition: { type: String, enum: ['new', 'used', 'refurbished'], default: 'used' },
     location: { type: String, required: true, trim: true, index: true },
+    geo: { type: geoSchema, default: undefined },
     images: { type: [imageSchema], default: [] },
     status: {
       type: String,
@@ -45,6 +64,7 @@ const listingSchema = new mongoose.Schema(
 listingSchema.index({ title: 'text', description: 'text', location: 'text' });
 listingSchema.index({ status: 1, createdAt: -1 });
 listingSchema.index({ category: 1, price: 1 });
+listingSchema.index({ geo: '2dsphere' });
 
 listingSchema.virtual('isBoostActive').get(function () {
   if (!this.boosted) return false;

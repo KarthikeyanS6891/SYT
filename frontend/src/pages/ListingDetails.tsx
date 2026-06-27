@@ -8,6 +8,7 @@ import { errorMessage } from '@/services/api';
 import { Loader } from '@/components/common/Loader';
 import { Button } from '@/components/common/Button';
 import { ListingGrid } from '@/components/listings/ListingGrid';
+import { ListingMap } from '@/components/map/ListingMap';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/store';
 import { openAuthModal } from '@/store/slices/uiSlice';
@@ -70,6 +71,7 @@ export default function ListingDetails() {
   const seller = listing.seller as User;
   const isOwner = user && seller && user._id === seller._id;
   const cover = listing.images[activeImage]?.url;
+  const geoCoords = listing.geo?.coordinates;
 
   const toggleFav = async () => {
     if (!user) {
@@ -263,6 +265,9 @@ export default function ListingDetails() {
         <div className="card posted-in">
           <h4 style={{ margin: '0 0 6px', fontSize: 15 }}>Posted in</h4>
           <div className="muted text-sm">{listing.location}</div>
+          {geoCoords && (
+            <ListingMap lat={geoCoords[1]} lng={geoCoords[0]} label={listing.location} />
+          )}
         </div>
       </aside>
 

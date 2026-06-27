@@ -8,6 +8,8 @@ import { Input, Textarea, Select } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { Loader } from '@/components/common/Loader';
 import { ImageUploader } from '@/components/listings/ImageUploader';
+import { LocationPicker } from '@/components/map/LocationPicker';
+import type { LatLng } from '@/components/map/leaflet';
 import type { Category, Listing, ListingImage } from '@/types';
 
 interface FormData {
@@ -26,9 +28,10 @@ export default function PostAd() {
   const isEdit = Boolean(id);
   const [categories, setCategories] = useState<Category[]>([]);
   const [images, setImages] = useState<ListingImage[]>([]);
+  const [coords, setCoords] = useState<LatLng | null>(null);
   const [loading, setLoading] = useState(isEdit);
   const {
-    register, handleSubmit, reset, formState: { errors, isSubmitting },
+    register, handleSubmit, reset, getValues, setValue, formState: { errors, isSubmitting },
   } = useForm<FormData>({
     defaultValues: { condition: 'used', status: 'published' },
   });
@@ -53,6 +56,11 @@ export default function PostAd() {
           status: l.status === 'sold' || l.status === 'disabled' ? 'published' : (l.status as any),
         });
         setImages(l.images);
+        setCoords(
+          l.geo?.coordinates
+            ? { lat: l.geo.coordinates[1], lng: l.geo.coordinates[0] }
+            : null
+        );
       })
       .catch((err) => {
         toast.error(errorMessage(err));
@@ -67,12 +75,19 @@ export default function PostAd() {
       return;
     }
     try {
-      const payload = { ...data, price: Number(data.price), images };
+      const payload = {
+        ...data,
+        price: Number(data.price),
+        images,
+        // On edit, explicit nulls clear a previously saved pin.
+        latitude: coords?.lat ?? (isEdit ? null : undefined),
+        longitude: coords?.lng ?? (isEdit ? null : undefined),
+      };
       if (isEdit && id) {
-        await listingApi.update(id, payload as any);
+        await listingApi.update(id, payload);
         toast.success('Listing updated');
       } else {
-        await listingApi.create(payload as any);
+        await listingApi.create(payload);
         toast.success('Listing created');
       }
       navigate('/my-listings');
@@ -132,6 +147,20 @@ export default function PostAd() {
             label="Location"
             error={errors.location?.message}
             {...register('location', { required: 'Location required' })}
+          />
+        </div>
+
+        <div className="field">
+          <label>Pin on map (optional)</label>
+          <LocationPicker
+            value={coords}
+            onChange={setCoords}
+            autoLocate={!isEdit}
+            onAddressFound={(address) => {
+              if (!getValues('location')) {
+                setValue('location', address, { shouldValidate: true });
+              }
+            }}
           />
         </div>
 

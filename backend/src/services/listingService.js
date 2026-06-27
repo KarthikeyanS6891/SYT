@@ -8,6 +8,12 @@ const sanitize = (input, allowed) =>
     Object.entries(input).filter(([k, v]) => allowed.includes(k) && v !== undefined)
   );
 
+// Flat latitude/longitude from the API become a GeoJSON point ([lng, lat]).
+const geoPoint = ({ latitude, longitude }) =>
+  typeof latitude === 'number' && typeof longitude === 'number'
+    ? { type: 'Point', coordinates: [longitude, latitude] }
+    : null;
+
 export const listingService = {
   async create(userId, data) {
     const allowed = [
@@ -15,6 +21,8 @@ export const listingService = {
       'condition', 'location', 'images', 'status',
     ];
     const payload = sanitize(data, allowed);
+    const geo = geoPoint(data);
+    if (geo) payload.geo = geo;
     return listingRepository.create({ ...payload, seller: userId });
   },
 
@@ -29,6 +37,14 @@ export const listingService = {
       'condition', 'location', 'images', 'status',
     ];
     const update = sanitize(data, allowed);
+    const geo = geoPoint(data);
+    if (geo) {
+      update.geo = geo;
+    } else if (data.latitude === null && data.longitude === null) {
+      const ops = { $unset: { geo: '' } };
+      if (Object.keys(update).length) ops.$set = update;
+      return listingRepository.updateById(id, ops);
+    }
     return listingRepository.updateById(id, update);
   },
 

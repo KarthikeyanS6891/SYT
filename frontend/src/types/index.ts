@@ -25,6 +25,12 @@ export interface ListingImage {
   key?: string;
 }
 
+export interface GeoPoint {
+  type: 'Point';
+  /** GeoJSON order: [longitude, latitude] */
+  coordinates: [number, number];
+}
+
 export type ListingStatus = 'draft' | 'published' | 'sold' | 'disabled';
 
 export interface Listing {
@@ -37,6 +43,7 @@ export interface Listing {
   currency: string;
   condition: 'new' | 'used' | 'refurbished';
   location: string;
+  geo?: GeoPoint | null;
   images: ListingImage[];
   status: ListingStatus;
   boosted: boolean;

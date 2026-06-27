@@ -1,5 +1,18 @@
 import { body, query, param } from 'express-validator';
 
+// Coordinates arrive as flat latitude/longitude (null clears the pin on update);
+// both must be sent together or not at all.
+const geoValidators = [
+  body('latitude').optional({ values: 'null' }).isFloat({ min: -90, max: 90 }).toFloat(),
+  body('longitude').optional({ values: 'null' }).isFloat({ min: -180, max: 180 }).toFloat(),
+  body().custom((_, { req }) => {
+    if ((req.body.latitude == null) !== (req.body.longitude == null)) {
+      throw new Error('latitude and longitude must be provided together');
+    }
+    return true;
+  }),
+];
+
 export const createListingValidator = [
   body('title').trim().isLength({ min: 3, max: 140 }),
   body('description').isString().isLength({ min: 10, max: 5000 }),
@@ -8,6 +21,7 @@ export const createListingValidator = [
   body('currency').optional().isString().isLength({ min: 1, max: 8 }),
   body('condition').optional().isIn(['new', 'used', 'refurbished']),
   body('location').isString().trim().isLength({ min: 2, max: 120 }),
+  ...geoValidators,
   body('status').optional().isIn(['draft', 'published']),
   body('images').optional().isArray({ max: 10 }),
 ];
@@ -20,6 +34,7 @@ export const updateListingValidator = [
   body('price').optional().isFloat({ min: 0 }),
   body('condition').optional().isIn(['new', 'used', 'refurbished']),
   body('location').optional().isString().trim().isLength({ min: 2, max: 120 }),
+  ...geoValidators,
   body('status').optional().isIn(['draft', 'published', 'sold']),
   body('images').optional().isArray({ max: 10 }),
 ];

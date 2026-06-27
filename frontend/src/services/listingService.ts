@@ -1,5 +1,11 @@
 import api, { unwrap } from './api';
-import type { Category, Listing, ListingFilters } from '@/types';
+import type { Category, Listing, ListingFilters, ListingImage } from '@/types';
+
+// Coordinates travel as flat fields; null clears the pin on update.
+export type ListingPayload = Partial<Listing> & {
+  latitude?: number | null;
+  longitude?: number | null;
+};
 
 export const listingApi = {
   list: (filters: ListingFilters = {}) =>
@@ -26,10 +32,10 @@ export const listingApi = {
       `/listings/${id}/similar`
     )),
 
-  create: (payload: Partial<Listing> & { category: string; images: { url: string; key?: string }[] }) =>
+  create: (payload: ListingPayload & { category: string; images: ListingImage[] }) =>
     unwrap(api.post<{ data: { listing: Listing }; meta: any; message: string }>('/listings', payload)),
 
-  update: (id: string, payload: Partial<Listing>) =>
+  update: (id: string, payload: ListingPayload) =>
     unwrap(api.patch<{ data: { listing: Listing }; meta: any; message: string }>(
       `/listings/${id}`,
       payload
