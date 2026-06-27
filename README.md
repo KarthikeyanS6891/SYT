@@ -118,6 +118,7 @@ frontend runs at `http://localhost:5173` with no CORS quirks.
 - **Pluggable storage.** `services/storageService.js` exposes `fromMulter()` and `delete()`. Default driver writes to local disk and is served via `/static/*`. Switch `STORAGE_DRIVER=s3` and add the AWS keys to wire S3 (the class shape is ready).
 - **Real-time chat.** Socket.IO is authenticated with the same JWT. Each user joins `user:<id>` plus a per-conversation room; the server emits `chat:message` to the conversation room and `chat:notify` to recipients' user rooms so their unread count refreshes regardless of which page they're on.
 - **Search.** Listings have a Mongo text index over `title`, `description`, and `location`. Combined with status, category, price-range, location regex, and sort filters, all paginated.
+- **Maps.** Listings can carry an optional GeoJSON point (`geo`, 2dsphere-indexed). The post form embeds a Leaflet + OpenStreetMap picker — drop a pin by clicking the map or via browser geolocation ("Use my current location"); the pin is reverse-geocoded with Nominatim to suggest the location text. Listing pages embed the pin on a map with directions links. No API key required.
 - **Security baseline.** `helmet`, `cors` (allow-list), `express-mongo-sanitize`, `hpp`, request rate limiting, request body size cap, password hashing with `bcryptjs`, JWT-based auth, role guard middleware.
 
 ---
@@ -182,10 +183,16 @@ Create listing body:
   "currency": "INR",
   "condition": "used",
   "location": "Bengaluru",
+  "latitude": 12.971599,
+  "longitude": 77.594566,
   "status": "published",
   "images": [{ "url": "http://localhost:5000/static/abc.jpg", "key": "abc.jpg" }]
 }
 ```
+
+`latitude`/`longitude` are optional but must be sent together; they are stored as a GeoJSON
+point in `geo: { type: "Point", coordinates: [lng, lat] }` on the listing. On `PATCH`, send
+both as `null` to remove a previously saved pin.
 
 ### Categories
 
@@ -320,6 +327,21 @@ Compound unique index on `(user, listing)`.
 
 Sample listing titles include _Honda Activa 6G_, _MacBook Pro 14" M2_, _2BHK Apartment for Rent — Adyar_, _Royal Enfield Classic 350_, etc., each with placeholder images via [placehold.co](https://placehold.co).
 
+### Bulk test data (`npm run seed:bulk`)
+
+For load- and feature-testing (sorting, search, filters, pagination, map), generate a large, realistic catalogue:
+
+```bash
+cd backend
+npm run seed            # baseline: categories, users, 12 curated listings, sample chat
+npm run seed:bulk       # top up to 5000 listings across every category
+```
+
+- **Idempotent top-up** by default — only inserts enough new listings to reach the target (5000), leaving curated demo data, favorites and chats intact. Re-running when the target is met is a no-op.
+- `COUNT=8000 npm run seed:bulk` — target a different total.
+- `FRESH=1 npm run seed:bulk` — wipe listings/favorites/chats first, then insert `COUNT` from scratch.
+- Data is deliberately varied so every feature has something to exercise: realistic brand+model titles (e.g. _Apple iPhone 15 Pro 256GB_, _Hyundai Creta 2023_) across all ~70 leaf categories, 25 cities with real coordinates (so the map has pins), wide price bands, mixed conditions, statuses (~86% published, plus sold/draft/disabled), `createdAt` spread over the last year, varied view counts, and ~8% boosted — and a pool of 50 seller accounts (`seller01@syt.test` … `seller50@syt.test`, password `password123`). It is deterministic (seeded RNG), so re-runs reproduce the same catalogue.
+
 ---
 
 ## Environment variables
@@ -371,9 +393,12 @@ For a separately-hosted backend, set the absolute URL.
 ### Backend
 
 ```
-npm run dev     # nodemon
-npm start       # production
-npm run seed    # wipes + reseeds DB
+npm run dev      # nodemon
+npm start        # production
+npm run seed     # wipes + reseeds DB
+npm run seed:bulk# top up to 5000 test listings
+npm test         # run the Vitest suite
+npm run test:cov # run with coverage (80% gate)
 ```
 
 ### Frontend
@@ -382,7 +407,18 @@ npm run seed    # wipes + reseeds DB
 npm run dev      # vite
 npm run build    # tsc + vite build → dist/
 npm run preview  # serve dist/
+npm test         # run the Vitest + Testing Library suite
+npm run test:cov # run with coverage (80% gate)
 ```
+
+---
+
+## Testing
+
+Both apps use [Vitest](https://vitest.dev). Tests live next to the code they cover (`*.test.ts[x]`).
+
+- **Backend** (`backend/`): integration tests drive the real Express app with [supertest](https://github.com/ladjs/supertest) against an in-memory MongoDB ([mongodb-memory-server](https://github.com/typegoose/mongodb-memory-server)) — no running database needed. Run `npm test` (392 tests) or `npm run test:cov` (~98% line coverage, fails under 80%).
+- **Frontend** (`frontend/`): component/page tests use [React Testing Library](https://testing-library.com/) + jsdom; services/store/hooks are unit-tested with mocked HTTP. Leaflet maps are mocked. Run `npm test` (330 tests) or `npm run test:cov` (~95% line coverage, fails under 80%). Shared helpers (store/router providers + data factories) live in `src/test/utils.tsx`.
 
 ---
 
