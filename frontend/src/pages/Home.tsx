@@ -5,6 +5,7 @@ import { Filters } from '@/components/listings/Filters';
 import { CategoryMegaMenu } from '@/components/listings/CategoryMegaMenu';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { Loader } from '@/components/common/Loader';
+import { Pagination } from '@/components/common/Pagination';
 import { listingApi, categoryApi } from '@/services/listingService';
 import { favoriteApi } from '@/services/favoriteService';
 import { errorMessage } from '@/services/api';
@@ -12,7 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/store';
 import { openAuthModal } from '@/store/slices/uiSlice';
 import { useDebounce } from '@/hooks/useDebounce';
-import type { Category, Listing, ListingFilters, Pagination } from '@/types';
+import type { Category, Listing, ListingFilters, Pagination as PaginationMeta } from '@/types';
 
 export default function Home() {
   const [params, setParams] = useSearchParams();
@@ -20,7 +21,7 @@ export default function Home() {
   const dispatch = useAppDispatch();
   const [items, setItems] = useState<Listing[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [meta, setMeta] = useState<Pagination | null>(null);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   const filters: ListingFilters = useMemo(
@@ -51,7 +52,7 @@ export default function Home() {
       .then(({ data, meta }) => {
         if (!active) return;
         setItems(data.items);
-        setMeta(meta as Pagination);
+        setMeta(meta as PaginationMeta);
       })
       .catch((err) => toast.error(errorMessage(err)))
       .finally(() => active && setLoading(false));
@@ -107,19 +108,7 @@ export default function Home() {
             onToggleFavorite={toggleFavorite}
             emptyText="No listings match your filters."
           />
-          {meta && meta.pages > 1 && (
-            <div className="pagination">
-              {Array.from({ length: meta.pages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  className={p === meta.page ? 'active' : ''}
-                  onClick={() => goPage(p)}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          )}
+          {meta && <Pagination page={meta.page} pages={meta.pages} onChange={goPage} />}
         </>
       )}
     </>

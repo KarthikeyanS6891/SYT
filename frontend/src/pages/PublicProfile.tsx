@@ -5,10 +5,11 @@ import { userApi } from '@/services/userService';
 import { listingApi } from '@/services/listingService';
 import { errorMessage } from '@/services/api';
 import { Loader } from '@/components/common/Loader';
+import { Pagination } from '@/components/common/Pagination';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { useAuth } from '@/hooks/useAuth';
 import { initials, timeAgo } from '@/utils/format';
-import type { Listing, Pagination, PublicUser } from '@/types';
+import type { Listing, Pagination as PaginationMeta, PublicUser } from '@/types';
 
 export default function PublicProfile() {
   const { id } = useParams<{ id: string }>();
@@ -16,13 +17,16 @@ export default function PublicProfile() {
   const { user: me } = useAuth();
   const [user, setUser] = useState<PublicUser | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
-  const [meta, setMeta] = useState<Pagination | null>(null);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [page, setPage] = useState(1);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingListings, setLoadingListings] = useState(true);
 
+  const isSelf = !!(me && id && me._id === id);
+
   useEffect(() => {
     if (!id) return;
-    if (me && me._id === id) {
+    if (isSelf) {
       navigate('/profile', { replace: true });
       return;
     }
@@ -35,17 +39,35 @@ export default function PublicProfile() {
         navigate('/');
       })
       .finally(() => setLoadingUser(false));
+  }, [id, isSelf, navigate]);
 
+  // Reset to the first page whenever the profile changes.
+  useEffect(() => {
+    setPage(1);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || isSelf) return;
+    let active = true;
     setLoadingListings(true);
     listingApi
-      .list({ seller: id, limit: 24, sort: 'latest' })
+      .list({ seller: id, limit: 24, sort: 'latest', page })
       .then(({ data, meta }) => {
+        if (!active) return;
         setListings(data.items);
-        setMeta(meta as Pagination);
+        setMeta(meta as PaginationMeta);
       })
       .catch(() => null)
-      .finally(() => setLoadingListings(false));
-  }, [id, me, navigate]);
+      .finally(() => active && setLoadingListings(false));
+    return () => {
+      active = false;
+    };
+  }, [id, isSelf, page]);
+
+  const goPage = (next: number) => {
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (loadingUser || !user) return <Loader />;
 
@@ -86,7 +108,10 @@ export default function PublicProfile() {
           <Link to="/" className="btn ghost sm">Browse all listings</Link>
         </div>
       ) : (
-        <ListingGrid items={listings} />
+        <>
+          <ListingGrid items={listings} />
+          {meta && <Pagination page={meta.page} pages={meta.pages} onChange={goPage} />}
+        </>
       )}
     </div>
   );
