@@ -18,6 +18,7 @@ import { Favorite } from '../src/models/Favorite.js';
 import { Conversation } from '../src/models/Conversation.js';
 import { Message } from '../src/models/Message.js';
 import { taxonomy } from './taxonomy.js';
+import { imageUrl } from './imageKeywords.js';
 
 const TARGET = Math.max(1, Number(process.env.COUNT || process.argv[2] || 5000));
 const FRESH = process.env.FRESH === '1' || process.env.FRESH === 'true';
@@ -307,8 +308,9 @@ async function run() {
       const boosted = status === 'published' && chance(0.08);
       const created = new Date(now - randInt(0, 365) * DAY - randInt(0, DAY - 1));
       const imgCount = randInt(1, 4);
+      // Category-matched images (cars show cars, etc.); lock keeps them stable.
       const images = Array.from({ length: imgCount }, (_, k) => ({
-        url: `https://picsum.photos/seed/syt-${made + i}-${k}/800/600`,
+        url: imageUrl(cat.slug, (made + i) * 11 + k * 101 + 1),
         key: `syt-${made + i}-${k}`,
       }));
 

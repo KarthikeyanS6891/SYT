@@ -340,7 +340,8 @@ npm run seed:bulk       # top up to 5000 listings across every category
 - **Idempotent top-up** by default — only inserts enough new listings to reach the target (5000), leaving curated demo data, favorites and chats intact. Re-running when the target is met is a no-op.
 - `COUNT=8000 npm run seed:bulk` — target a different total.
 - `FRESH=1 npm run seed:bulk` — wipe listings/favorites/chats first, then insert `COUNT` from scratch.
-- Data is deliberately varied so every feature has something to exercise: realistic brand+model titles (e.g. _Apple iPhone 15 Pro 256GB_, _Hyundai Creta 2023_) across all ~70 leaf categories, 25 cities with real coordinates (so the map has pins), wide price bands, mixed conditions, statuses (~86% published, plus sold/draft/disabled), `createdAt` spread over the last year, varied view counts, and ~8% boosted — and a pool of 50 seller accounts (`seller01@syt.test` … `seller50@syt.test`, password `password123`). It is deterministic (seeded RNG), so re-runs reproduce the same catalogue.
+- `npm run seed:images` — re-point existing seeded listings to **category-matched pictures** (cars show cars, dogs show dogs, …) via keyword-tagged [LoremFlickr](https://loremflickr.com) images. The bulk seeder already does this for new data; run this to refresh listings seeded by an older version. Keyword mapping lives in `seed/imageKeywords.js`.
+- Data is deliberately varied so every feature has something to exercise: realistic brand+model titles (e.g. _Apple iPhone 15 Pro 256GB_, _Hyundai Creta 2023_) across all ~70 leaf categories with category-matched images, 25 cities with real coordinates (so the map has pins), wide price bands, mixed conditions, statuses (~86% published, plus sold/draft/disabled), `createdAt` spread over the last year, varied view counts, and ~8% boosted — and a pool of 50 seller accounts (`seller01@syt.test` … `seller50@syt.test`, password `password123`). It is deterministic (seeded RNG), so re-runs reproduce the same catalogue.
 
 ---
 
@@ -397,6 +398,7 @@ npm run dev      # nodemon
 npm start        # production
 npm run seed     # wipes + reseeds DB
 npm run seed:bulk# top up to 5000 test listings
+npm run seed:images # category-matched pictures for seeded listings
 npm test         # run the Vitest suite
 npm run test:cov # run with coverage (80% gate)
 ```

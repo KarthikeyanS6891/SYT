@@ -10,6 +10,7 @@
     "seed": "node seed/seed.js",
     "seed:bulk": "node seed/seed-bulk.js",
     "seed:geo": "node seed/backfill-geo.js",
+    "seed:images": "node seed/backfill-images.js",
     "lint": "eslint src/",
     "test": "vitest run",
     "test:watch": "vitest",
