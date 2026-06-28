@@ -120,6 +120,7 @@ export default function ListingDetails() {
   };
 
   return (
+    <>
     <div className="listing-page">
       <div className="listing-main">
         <div className="gallery-v2">
@@ -270,6 +271,7 @@ export default function ListingDetails() {
           )}
         </div>
       </aside>
+    </div>
 
       {similar.length > 0 && (
         <div className="listing-similar">
@@ -277,6 +279,6 @@ export default function ListingDetails() {
           <ListingGrid items={similar} />
         </div>
       )}
-    </div>
+    </>
   );
 }

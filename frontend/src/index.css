@@ -477,7 +477,7 @@ img { max-width: 100%; display: block; }
 }
 .listing-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .listing-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 76px; }
-.listing-similar { grid-column: 1 / -1; margin-top: 24px; }
+.listing-similar { margin-top: 24px; }
 
 /* OLX-style gallery */
 .gallery-v2 { display: flex; flex-direction: column; gap: 10px; }
