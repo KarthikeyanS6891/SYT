@@ -20,6 +20,9 @@ export default defineConfig({
       JWT_REFRESH_EXPIRES_IN: '30d',
       MONGODB_URI: 'mongodb://127.0.0.1:27017/syt_test_placeholder',
       CORS_ORIGINS: 'http://localhost:5173',
+      // Keep Google Sign-In unconfigured even when the developer's .env sets a
+      // client id — dotenv does not override keys that are already present.
+      GOOGLE_CLIENT_ID: '',
     },
     coverage: {
       provider: 'v8',
