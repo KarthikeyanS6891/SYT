@@ -7,9 +7,26 @@ import { Favorite } from '../src/models/Favorite.js';
 import { Conversation } from '../src/models/Conversation.js';
 import { Message } from '../src/models/Message.js';
 import { taxonomy } from './taxonomy.js';
+import { IMAGE_VARIANTS, imageUrlVariant } from './imageKeywords.js';
 
-const img = (keywords, seed, w = 800, h = 600) =>
-  `https://loremflickr.com/${w}/${h}/${encodeURIComponent(keywords)}?lock=${seed}`;
+// Gallery built only from a category's verified keyword pool (IMAGE_VARIANTS).
+// LoremFlickr ANDs comma-separated tags and silently serves a RANDOM photo when
+// a tag (or combo) has no matches, so free-form keywords are banned here — an
+// unlisted keyword throws at seed time instead of quietly seeding junk images.
+// Each shot is [keyword, lock]; a lock deterministically pins one photo, and
+// these locks were hand-picked by reviewing the actual thumbnails, because even
+// verified tags hide off-topic photos at some locks (Flickr's "iphone" tag is
+// mostly photos TAKEN WITH an iPhone; "office" is full of embroidered patches).
+// `slug` picks the keyword pool and may differ from the listing's category when
+// the product is more specific (e.g. headphones sold under tvs-video-audio).
+const photos = (slug, shots) =>
+  shots.map(([keyword, lock]) => {
+    const k = (IMAGE_VARIANTS[slug] || []).indexOf(keyword);
+    if (k === -1) {
+      throw new Error(`[seed] "${keyword}" is not a verified image keyword for "${slug}"`);
+    }
+    return { url: imageUrlVariant(slug, k, lock) };
+  });
 
 // Approximate city centres ([lng, lat]) for sample data; each listing gets a
 // small deterministic offset so same-city pins don't stack on one spot.
@@ -71,151 +88,88 @@ const buildListings = (users, cats) => {
       description: 'Excellent condition, all papers clear. Single owner, garage parked.',
       category: cat('scooters'), price: 75000, location: 'Bengaluru', condition: 'used',
       status: 'published', boosted: true,
-      images: [
-        { url: img('scooter,honda,activa', 101) },
-        { url: img('scooter,parked,street', 102) },
-        { url: img('scooter,dashboard,speedometer', 103) },
-        { url: img('scooter,side,profile', 104) },
-        { url: img('scooter,helmet,riding', 105) },
-      ],
+      images: photos('scooters', [['scooter', 12], ['vespa', 3], ['scooter', 3], ['vespa', 11], ['vespa', 7]]),
     },
     {
       seller: u(2), title: 'MacBook Pro 14" M2 (2023) - 16GB/512GB',
       description: 'Barely used, with charger and original box. Battery cycle count under 50.',
       category: cat('computers-laptops'), price: 145000, location: 'Delhi', condition: 'used',
       status: 'published', boosted: true,
-      images: [
-        { url: img('macbook,laptop,apple', 201) },
-        { url: img('laptop,workspace,desk', 202) },
-        { url: img('macbook,keyboard,closeup', 203) },
-        { url: img('laptop,screen,display', 204) },
-        { url: img('macbook,box,packaging', 205) },
-      ],
+      images: photos('computers-laptops', [['macbook', 201], ['laptop', 1], ['keyboard', 2], ['laptop', 7]]),
     },
     {
       seller: u(3), title: '2BHK Apartment for Rent - Adyar',
       description: 'Spacious 2BHK with covered parking, 24x7 water, gated community.',
       category: cat('rent-houses-apartments'), price: 32000, location: 'Chennai', condition: 'new',
       status: 'published',
-      images: [
-        { url: img('apartment,building,modern', 301) },
-        { url: img('living,room,interior', 302) },
-        { url: img('bedroom,interior,modern', 303) },
-        { url: img('kitchen,modular,interior', 304) },
-        { url: img('balcony,view,apartment', 305) },
-      ],
+      images: photos('rent-houses-apartments', [['apartment', 3], ['apartment', 21], ['bedroom', 9], ['balcony', 305], ['apartment', 2]]),
     },
     {
       seller: u(1), title: 'IKEA Sofa - 3 Seater, Grey',
       description: 'IKEA Friheten 3-seater, 1 year used. Clean, no stains. Pickup only.',
       category: cat('sofa-dining'), price: 18000, location: 'Bengaluru', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('sofa,couch,grey,living-room', 401) },
-        { url: img('sofa,fabric,texture', 402) },
-        { url: img('sofa,cushion,detail', 403) },
-        { url: img('living,room,minimalist', 404) },
-      ],
+      images: photos('sofa-dining', [['sofa', 9], ['sofa', 7], ['couch', 3], ['armchair', 403]]),
     },
     {
       seller: u(2), title: 'iPhone 13 Pro - 128GB Sierra Blue',
       description: 'In warranty till Aug. With box, charger and screen guard already applied.',
       category: cat('mobile-phones'), price: 62000, location: 'Delhi', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('iphone,smartphone,blue', 501) },
-        { url: img('iphone,box,unboxing', 502) },
-        { url: img('iphone,camera,closeup', 503) },
-        { url: img('iphone,screen,apps', 504) },
-        { url: img('smartphone,charger,accessories', 505) },
-      ],
+      images: photos('mobile-phones', [['smartphone', 11], ['smartphone', 18], ['smartphone', 14], ['smartphone', 9]]),
     },
     {
       seller: u(3), title: 'Royal Enfield Classic 350 (2020)',
       description: '18k km driven, full service history. New tyres fitted last month.',
       category: cat('motorcycles'), price: 135000, location: 'Chennai', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('motorcycle,royal-enfield,bike', 601) },
-        { url: img('motorbike,classic,vintage', 602) },
-        { url: img('motorcycle,engine,detail', 603) },
-        { url: img('motorbike,headlight,chrome', 604) },
-        { url: img('motorcycle,road,riding', 605) },
-      ],
+      images: photos('motorcycles', [['motorbike', 7], ['motorbike', 21], ['motorcycle', 2], ['motorcycle', 9], ['motorcycle', 21]]),
     },
     {
       seller: u(1), title: 'Sony WH-1000XM5 Headphones',
       description: 'Wireless ANC headphones, used <3 months. With case.',
       category: cat('tvs-video-audio'), price: 22000, location: 'Bengaluru', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('headphones,sony,wireless', 701) },
-        { url: img('headphones,black,studio', 702) },
-        { url: img('headphones,case,travel', 703) },
-        { url: img('headphones,music,listening', 704) },
-      ],
+      // headphones under tvs-video-audio: borrow the mobile-accessories pool,
+      // whose verified keywords match the product better than TV/speaker shots
+      images: photos('mobile-accessories', [['earphones', 702], ['earphones', 9], ['earphones', 14], ['earphones', 21]]),
     },
     {
       seller: u(2), title: 'Treadmill - Powermax MFT-2200',
       description: 'Foldable home treadmill, lightly used. Perfect for daily walks/runs.',
       category: cat('gym-fitness'), price: 24000, location: 'Delhi', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('treadmill,gym,fitness', 801) },
-        { url: img('treadmill,home,running', 802) },
-        { url: img('treadmill,console,display', 803) },
-        { url: img('treadmill,folded,storage', 804) },
-      ],
+      images: photos('gym-fitness', [['treadmill', 14], ['treadmill', 9], ['gym', 9], ['dumbbell', 2]]),
     },
     {
       seller: u(3), title: 'Engineering textbooks bundle',
       description: 'Set of 8 BE/BTech textbooks, mostly CSE. Highlights but no torn pages.',
       category: cat('books'), price: 1200, location: 'Chennai', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('books,textbook,study', 901) },
-        { url: img('books,stack,library', 902) },
-        { url: img('book,pages,reading', 903) },
-        { url: img('engineering,books,desk', 904) },
-      ],
+      images: photos('books', [['bookshelf', 5], ['library', 2], ['books', 21], ['books', 9]]),
     },
     {
       seller: u(1), title: 'Golden Retriever Puppy - 2 months',
       description: 'KCI registered, vaccinated, dewormed. Genuine buyers only.',
       category: cat('dogs'), price: 28000, location: 'Bengaluru', condition: 'new',
       status: 'published',
-      images: [
-        { url: img('golden-retriever,puppy,dog', 1001) },
-        { url: img('puppy,playing,grass', 1002) },
-        { url: img('golden-retriever,cute,paws', 1003) },
-        { url: img('puppy,sleeping,cute', 1004) },
-        { url: img('dog,outdoor,happy', 1005) },
-      ],
+      images: photos('dogs', [['puppy', 1001], ['dog', 14], ['puppy', 3], ['puppy', 5], ['dog', 2]]),
     },
     {
       seller: u(2), title: 'Office desk + ergonomic chair combo',
       description: 'Work-from-home setup. Both items for one price.',
       category: cat('other-household'), price: 9500, location: 'Delhi', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('office,desk,chair,workspace', 1101) },
-        { url: img('ergonomic,chair,office', 1102) },
-        { url: img('home,office,setup', 1103) },
-        { url: img('desk,monitor,workspace', 1104) },
-      ],
+      // desk/office keywords live in the rent-shops-offices pool, which fits
+      // this WFH-setup listing better than generic other-household furniture
+      images: photos('rent-shops-offices', [['desk', 11], ['desk', 9], ['desk', 5], ['coworking', 2]]),
     },
     {
       seller: u(3), title: 'Maruti Swift VXI 2019 - Petrol',
       description: 'First owner, 42k km, full insurance valid. Service done last month.',
       category: cat('cars'), price: 525000, location: 'Chennai', condition: 'used',
       status: 'published',
-      images: [
-        { url: img('hatchback,car,red', 1201) },
-        { url: img('car,interior,dashboard', 1202) },
-        { url: img('car,steering,wheel', 1203) },
-        { url: img('car,seats,leather', 1204) },
-        { url: img('car,back,trunk', 1205) },
-      ],
+      images: photos('cars', [['hatchback', 1201], ['car-interior', 21], ['hatchback', 3], ['car', 9], ['car-interior', 14]]),
     },
   ];
 };
