@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend-preview",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "node frontend/mock/mock-api.mjs & cd frontend && VITE_API_PROXY=http://localhost:5050 npm run dev"
+      ],
+      "port": 5173
+    }
+  ]
+}

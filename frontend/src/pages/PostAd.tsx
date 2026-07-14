@@ -99,7 +99,7 @@ export default function PostAd() {
   if (loading) return <Loader />;
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+    <div className="page-narrow">
       <h1 className="title">{isEdit ? 'Edit listing' : 'Post a new ad'}</h1>
       <form className="card" onSubmit={handleSubmit(onSubmit)}>
         <Input
@@ -116,7 +116,7 @@ export default function PostAd() {
           {...register('description', { required: 'Description required', minLength: 10 })}
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="form-grid-2">
           <Select
             label="Category"
             placeholder="Select category"
@@ -133,7 +133,7 @@ export default function PostAd() {
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="form-grid-2">
           <Select
             label="Condition"
             options={[

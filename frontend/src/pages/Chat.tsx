@@ -184,7 +184,7 @@ export default function Chat() {
             <div className="chat-header">
               <div
                 style={{
-                  width: 50, height: 38, borderRadius: 6, background: '#f3f4f6',
+                  width: 50, height: 38, borderRadius: 6, background: 'var(--color-card-alt)',
                   backgroundImage: activeConvo.listing.images?.[0]
                     ? `url(${activeConvo.listing.images[0].url})` : undefined,
                   backgroundSize: 'cover', backgroundPosition: 'center',

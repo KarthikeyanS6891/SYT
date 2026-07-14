@@ -83,7 +83,7 @@ export default function MyListings() {
             <div key={l._id} className="card row" style={{ gap: 12 }}>
               <div
                 style={{
-                  width: 100, height: 80, borderRadius: 8, background: '#f3f4f6',
+                  width: 100, height: 80, borderRadius: 8, background: 'var(--color-card-alt)',
                   backgroundImage: l.images[0] ? `url(${l.images[0].url})` : undefined,
                   backgroundSize: 'cover', backgroundPosition: 'center', flex: '0 0 auto',
                 }}

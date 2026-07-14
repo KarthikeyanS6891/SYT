@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Filters } from '@/components/listings/Filters';
 import { CategoryMegaMenu } from '@/components/listings/CategoryMegaMenu';
@@ -85,8 +85,29 @@ export default function Home() {
     }
   };
 
+  const browsing = !filters.q && !filters.category;
+
   return (
     <>
+      {!browsing && <h1 className="visually-hidden">Browse listings</h1>}
+      {browsing && (
+        <section className="home-hero" aria-label="Welcome">
+          <p className="hero-eyebrow">Sell Your Things</p>
+          <h1 className="hero-title">Your city's bazaar, online.</h1>
+          <p className="hero-sub">
+            Buy and sell cars, phones, furniture and almost anything — with people nearby.
+          </p>
+          <div className="hero-cta">
+            <Link to="/post" className="btn">+ Post your ad</Link>
+            <span className="hero-note">It's free and takes a minute</span>
+          </div>
+          <div className="hero-tags" aria-hidden="true">
+            <span className="hero-tag">₹ 499</span>
+            <span className="hero-tag">₹ 12,500</span>
+            <span className="hero-tag">₹ 4,85,000</span>
+          </div>
+        </section>
+      )}
       <CategoryMegaMenu
         categories={categories}
         selectedCategory={filters.category}
@@ -94,7 +115,7 @@ export default function Home() {
       />
       <Filters filters={filters} onChange={updateFilters} />
       {filters.q && (
-        <div className="text-sm muted" style={{ marginBottom: 12 }}>
+        <div className="results-banner text-sm">
           Showing results for "<b>{filters.q}</b>"
         </div>
       )}

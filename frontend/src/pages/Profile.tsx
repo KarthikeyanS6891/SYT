@@ -62,7 +62,7 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+    <div className="page-narrow">
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="row" style={{ gap: 16 }}>
           <span

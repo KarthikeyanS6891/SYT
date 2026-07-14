@@ -122,7 +122,7 @@ export default function AdminDashboard() {
             <div key={l._id} className="card row" style={{ gap: 12 }}>
               <div
                 style={{
-                  width: 80, height: 60, borderRadius: 6, background: '#f3f4f6',
+                  width: 80, height: 60, borderRadius: 6, background: 'var(--color-card-alt)',
                   backgroundImage: l.images[0] ? `url(${l.images[0].url})` : undefined,
                   backgroundSize: 'cover', backgroundPosition: 'center',
                 }}

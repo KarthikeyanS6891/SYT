@@ -17,11 +17,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           toastOptions={{
             duration: 3000,
             style: {
-              fontSize: 13,
-              borderRadius: 10,
+              fontSize: 13.5,
+              borderRadius: 14,
               background: 'var(--color-card)',
               color: 'var(--color-text)',
               border: '1px solid var(--color-border)',
+              boxShadow: 'var(--shadow-lg)',
             },
           }}
         />

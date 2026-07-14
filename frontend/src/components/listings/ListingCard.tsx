@@ -1,4 +1,4 @@
-import { FC, MouseEvent } from 'react';
+import { FC, KeyboardEvent, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Listing } from '@/types';
 import { formatPrice, timeAgo } from '@/utils/format';
@@ -17,8 +17,19 @@ export const ListingCard: FC<Props> = ({ listing, onToggleFavorite }) => {
     onToggleFavorite?.(listing._id, !listing.isFavorite);
   };
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') navigate(`/listings/${listing._id}`);
+  };
+
   return (
-    <div className="listing-card" onClick={() => navigate(`/listings/${listing._id}`)}>
+    <div
+      className="listing-card"
+      role="link"
+      tabIndex={0}
+      aria-label={listing.title}
+      onClick={() => navigate(`/listings/${listing._id}`)}
+      onKeyDown={handleKeyDown}
+    >
       <div className="thumb" style={cover ? { backgroundImage: `url(${cover})` } : {}} />
       {listing.boosted && <span className="badge boost-badge">★ Featured</span>}
       {onToggleFavorite && (

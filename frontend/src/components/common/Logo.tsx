@@ -9,32 +9,49 @@ interface Props {
   className?: string;
 }
 
+/**
+ * SYT brand mark: a price tag pointing left (the app-wide price-tag
+ * signature) carrying an "S" whose stroke terminals end in arrowheads —
+ * one flowing out (sell), one flowing in (buy). Marigold gradient from
+ * the "Marigold & Ink" design system; all letterforms are paths so the
+ * mark renders identically on every platform.
+ */
+
+const TAG_PATH =
+  'M 13 4 H 34 C 35.15 4 36 4.85 36 6 V 34 C 36 35.15 35.15 36 34 36 H 13 L 5.1 22.05 Q 4 20 5.1 17.95 Z';
+const S_PATH =
+  'M 29.8 13.9 C 28.3 12.1 24.9 11.5 22.6 12.5 C 20.2 13.6 19.6 16.4 21.6 18 ' +
+  'C 22.7 18.9 24.4 19.3 25.9 19.8 C 27.4 20.3 29.1 21 29.5 22.9 ' +
+  'C 30 25.1 28.2 27.2 25.6 27.6 C 23.1 27.9 20.6 27 19.5 25.3';
+const ARROW_OUT = 'M 28.9 10.7 L 34.0 12.4 L 30.8 16.5 Z';
+const ARROW_IN = 'M 20.6 28.9 L 15.5 27.3 L 18.6 23.2 Z';
+
+const DISPLAY_FONT =
+  "'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const BODY_FONT =
+  "'Instrument Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+
 export const Logo: FC<Props> = ({
   size = 40,
   showWordmark = true,
   showTagline = false,
-  wordmarkColor = '#1f2937',
+  wordmarkColor = 'currentColor',
   taglineColor = '#6b7280',
   className,
 }) => {
   const uid = useId();
-  const bgId = `syt-bg-${uid}`;
-  const shineId = `syt-shine-${uid}`;
+  const safeUid = uid.replace(/[^a-zA-Z0-9_-]/g, '');
+  const bgId = `syt-bg-${safeUid}`;
 
   const m = size;
   const px = (n: number) => +(n * (m / 40)).toFixed(2);
 
-  const fontSize = px(24);
+  const fontSize = px(25);
   const taglineSize = px(7);
-  const gap = px(12);
-  const wordmarkW = showWordmark ? px(78) : 0;
+  const gap = px(11);
+  const wordmarkW = showWordmark ? (showTagline ? px(100) : px(74)) : 0;
   const totalW = m + (showWordmark ? gap + wordmarkW : 0);
   const totalH = showTagline ? m + px(8) : m;
-
-  // Inner mark coordinates (the rounded square is m × m)
-  const r = m * 0.225;          // corner radius
-  const s = m * 0.6;            // 'S' font size inside mark
-  const arrowStroke = m * 0.055;
 
   return (
     <svg
@@ -47,94 +64,68 @@ export const Logo: FC<Props> = ({
       className={className}
     >
       <defs>
-        <linearGradient id={bgId} x1="20%" y1="0%" x2="80%" y2="100%">
-          <stop offset="0%" stopColor="#ffa15c" />
-          <stop offset="55%" stopColor="#ff6b35" />
-          <stop offset="100%" stopColor="#cf3a08" />
-        </linearGradient>
-        <linearGradient id={shineId} x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
-          <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
+        <linearGradient id={bgId} x1="12%" y1="0%" x2="88%" y2="100%">
+          <stop offset="0%" stopColor="#ffa14e" />
+          <stop offset="52%" stopColor="#ff5a1f" />
+          <stop offset="100%" stopColor="#d43b05" />
         </linearGradient>
       </defs>
 
-      {/* Mark — rounded-square stage with brand gradient */}
-      <g>
-        <rect x={px(2)} y={px(2)} width={m - px(4)} height={m - px(4)} rx={r} fill={`url(#${bgId})`} />
-        <rect x={px(2)} y={px(2)} width={m - px(4)} height={m - px(4)} rx={r} fill={`url(#${shineId})`} />
-
-        {/* Up-right chevron (sell flow) */}
-        <g
-          stroke="#ffffff"
-          strokeWidth={arrowStroke}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      {/* Mark — nested svg keeps the 40-unit geometry at any size */}
+      <svg x="0" y="0" width={m} height={m} viewBox="0 0 40 40">
+        <path d={TAG_PATH} fill={`url(#${bgId})`} />
+        <path
+          d={S_PATH}
           fill="none"
-          opacity="0.9"
-        >
-          <path d={`M ${m * 0.6} ${m * 0.28} L ${m * 0.74} ${m * 0.2} L ${m * 0.74} ${m * 0.34}`} />
-        </g>
-
-        {/* Bold S monogram */}
-        <text
-          x={m * 0.5}
-          y={m * 0.75}
-          fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-          fontWeight={900}
-          fontSize={s}
-          fill="#ffffff"
-          textAnchor="middle"
-          letterSpacing={-m * 0.05}
-        >
-          S
-        </text>
-
-        {/* Down-left chevron (buy flow) */}
-        <g
           stroke="#ffffff"
-          strokeWidth={arrowStroke}
+          strokeWidth="4.3"
           strokeLinecap="round"
-          strokeLinejoin="round"
+        />
+        <path d={ARROW_OUT} fill="#ffffff" />
+        <path d={ARROW_IN} fill="#ffffff" />
+        <circle
+          cx="11.6"
+          cy="20"
+          r="2.55"
           fill="none"
-          opacity="0.9"
-        >
-          <path d={`M ${m * 0.4} ${m * 0.72} L ${m * 0.26} ${m * 0.8} L ${m * 0.26} ${m * 0.66}`} />
-        </g>
-      </g>
+          stroke="#ffffff"
+          strokeWidth="1.7"
+          opacity="0.95"
+        />
+        <circle cx="11.6" cy="20" r="1.15" fill="rgba(18, 23, 42, 0.35)" />
+      </svg>
 
       {/* Wordmark: S [arrow-Y] T */}
       {showWordmark && (
         <g transform={`translate(${m + gap},0)`}>
           <text
             x="0"
-            y={m * 0.74}
-            fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-            fontWeight={900}
+            y={px(29)}
+            fontFamily={DISPLAY_FONT}
+            fontWeight={800}
             fontSize={fontSize}
             fill={wordmarkColor}
-            letterSpacing={-1}
           >
             S
           </text>
           <g
-            transform={`translate(${px(20)},${px(10)})`}
-            stroke="#ff6b35"
+            transform={`translate(${px(22)},${px(7)})`}
+            stroke="#ff5a1f"
             strokeWidth={px(3.2)}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
           >
-            <path d={`M ${px(1)} ${px(18)} L ${px(9)} ${px(2)} L ${px(17)} ${px(18)}`} />
-            <path d={`M ${px(9)} ${px(2)} L ${px(9)} ${px(22)}`} />
+            <path d={`M ${px(0)} ${px(2)} L ${px(10)} ${px(16)} L ${px(20)} ${px(2)}`} />
+            <path d={`M ${px(10)} ${px(16)} V ${px(26)}`} />
           </g>
           <text
-            x={px(46)}
-            y={m * 0.74}
-            fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-            fontWeight={900}
+            x={px(51)}
+            y={px(29)}
+            fontFamily={DISPLAY_FONT}
+            fontWeight={800}
             fontSize={fontSize}
             fill={wordmarkColor}
-            letterSpacing={-1}
           >
             T
           </text>
@@ -145,7 +136,7 @@ export const Logo: FC<Props> = ({
         <text
           x={m + gap}
           y={m + px(6)}
-          fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          fontFamily={BODY_FONT}
           fontWeight={700}
           fontSize={taglineSize}
           fill={taglineColor}

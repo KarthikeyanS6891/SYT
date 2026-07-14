@@ -1,56 +1,42 @@
-<svg width="156" height="44" viewBox="0 0 156 44" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYT - Sell Your Things">
+<svg width="166" height="48" viewBox="0 0 166 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYT - Sell Your Things">
   <defs>
-    <linearGradient id="syt-logo-bg" x1="20%" y1="0%" x2="80%" y2="100%">
-      <stop offset="0%" stop-color="#ffa15c"/>
-      <stop offset="55%" stop-color="#ff6b35"/>
-      <stop offset="100%" stop-color="#cf3a08"/>
-    </linearGradient>
-    <linearGradient id="syt-logo-shine" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
-      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    <linearGradient id="syt-logo-bg" x1="12%" y1="0%" x2="88%" y2="100%">
+      <stop offset="0%" stop-color="#ffa14e"/>
+      <stop offset="52%" stop-color="#ff5a1f"/>
+      <stop offset="100%" stop-color="#d43b05"/>
     </linearGradient>
   </defs>
 
-  <!-- Mark: 36x36 -->
+  <!-- Mark: price tag carrying the exchange-S -->
   <g transform="translate(2,2)">
-    <rect x="0" y="0" width="36" height="36" rx="9" fill="url(#syt-logo-bg)"/>
-    <rect x="0" y="0" width="36" height="36" rx="9" fill="url(#syt-logo-shine)"/>
-
-    <g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
-      <path d="M 22 10 L 27 7 L 27 12"/>
-    </g>
-
-    <text x="18" y="27"
-          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-          font-weight="900" font-size="23" fill="#ffffff" text-anchor="middle"
-          letter-spacing="-1.2">S</text>
-
-    <g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
-      <path d="M 14 26 L 9 29 L 9 24"/>
-    </g>
+    <path d="M 13 4 H 34 C 35.15 4 36 4.85 36 6 V 34 C 36 35.15 35.15 36 34 36 H 13 L 5.1 22.05 Q 4 20 5.1 17.95 Z" fill="url(#syt-logo-bg)"/>
+    <path d="M 29.8 13.9 C 28.3 12.1 24.9 11.5 22.6 12.5 C 20.2 13.6 19.6 16.4 21.6 18 C 22.7 18.9 24.4 19.3 25.9 19.8 C 27.4 20.3 29.1 21 29.5 22.9 C 30 25.1 28.2 27.2 25.6 27.6 C 23.1 27.9 20.6 27 19.5 25.3"
+          fill="none" stroke="#ffffff" stroke-width="4.3" stroke-linecap="round"/>
+    <path d="M 28.9 10.7 L 34.0 12.4 L 30.8 16.5 Z" fill="#ffffff"/>
+    <path d="M 20.6 28.9 L 15.5 27.3 L 18.6 23.2 Z" fill="#ffffff"/>
+    <circle cx="11.6" cy="20" r="2.55" fill="none" stroke="#ffffff" stroke-width="1.7" opacity="0.95"/>
+    <circle cx="11.6" cy="20" r="1.15" fill="rgba(18,23,42,0.35)"/>
   </g>
 
   <!-- Wordmark: S [arrow-Y] T -->
-  <g transform="translate(46, 4)">
-    <text x="0" y="25"
-          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-          font-weight="900" font-size="24" fill="#1f2937" letter-spacing="-1">S</text>
+  <g transform="translate(53, 2)">
+    <text x="0" y="29"
+          font-family="'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-weight="800" font-size="25" fill="#161c31" letter-spacing="0">S</text>
 
-    <!-- Y as an upward chevron -->
-    <g transform="translate(19, 4)"
-       stroke="#ff6b35" stroke-width="3.4"
+    <g transform="translate(22, 7)"
+       stroke="#ff5a1f" stroke-width="3.2"
        stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <path d="M 1 20 L 9 4 L 17 20"/>
-      <path d="M 9 4 L 9 23"/>
+      <path d="M 0 2 L 10 16 L 20 2"/>
+      <path d="M 10 16 V 26"/>
     </g>
 
-    <text x="44" y="25"
-          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-          font-weight="900" font-size="24" fill="#1f2937" letter-spacing="-1">T</text>
+    <text x="51" y="29"
+          font-family="'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-weight="800" font-size="25" fill="#161c31" letter-spacing="0">T</text>
   </g>
 
-  <!-- Tagline -->
-  <text x="46" y="40"
-        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-        font-weight="700" font-size="7" fill="#6b7280" letter-spacing="2.4">SELL YOUR THINGS</text>
+  <text x="53" y="44"
+        font-family="'Instrument Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-weight="700" font-size="7" fill="#646a7e" letter-spacing="2">SELL YOUR THINGS</text>
 </svg>
