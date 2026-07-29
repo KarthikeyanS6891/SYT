@@ -5,7 +5,7 @@ export const conversationRepository = {
   findByListingAndUsers: (listingId, userIds) =>
     Conversation.findOne({
       listing: listingId,
-      participants: { $all: userIds, $size: userIds.length },
+      participantsKey: userIds.map((id) => String(id)).sort().join('_'),
     }),
 
   create: (data) => Conversation.create(data),

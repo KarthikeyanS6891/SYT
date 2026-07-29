@@ -392,6 +392,29 @@ describe('Conversation model', () => {
     expect(second.lastMessage).toBeNull();
     expect(second.lastMessageAt instanceof Date).toBe(true);
   });
+
+  it('allows a second, different buyer to message the same seller about the same listing', async () => {
+    // Regression test: participants is an array, so a naive unique index on
+    // { participants, listing } is multikey and lets unrelated participant sets
+    // collide on a shared element (the seller). See participantsKey on the schema.
+    const seller = await createUser();
+    const buyer1 = await createUser();
+    const buyer2 = await createUser();
+    const listing = await createListing({ seller });
+
+    const convo1 = await Conversation.create({
+      listing: listing._id,
+      participants: [buyer1._id, seller._id],
+    });
+    const convo2 = await Conversation.create({
+      listing: listing._id,
+      participants: [buyer2._id, seller._id],
+    });
+
+    expect(convo1._id).toBeTruthy();
+    expect(convo2._id).toBeTruthy();
+    expect(convo1._id.toString()).not.toBe(convo2._id.toString());
+  });
 });
 
 // ---------------------------------------------------------------------------

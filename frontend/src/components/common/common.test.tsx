@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { createRef } from 'react';
 import {
   renderWithProviders,
@@ -373,5 +373,26 @@ describe('PrivateRoute', () => {
     renderPrivate(<div>admin-area</div>, authedState({ role: 'admin' }), { adminOnly: true });
     expect(screen.getByText('admin-area')).toBeInTheDocument();
     expect(screen.queryByText('landing-page')).not.toBeInTheDocument();
+  });
+
+  it('carries the originally-requested location in redirect state (regression: deep links used to land on "/" with no way back)', () => {
+    const LandingReadsState = () => {
+      const location = useLocation() as { state?: { from?: { pathname: string } } };
+      return <div>from:{location.state?.from?.pathname ?? 'none'}</div>;
+    };
+    const store = makeStore({
+      auth: { user: null, status: 'unauthenticated', error: null, initialized: true },
+    });
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/private']}>
+          <Routes>
+            <Route path="/" element={<LandingReadsState />} />
+            <Route path="/private" element={<PrivateRoute><div>secret</div></PrivateRoute>} />
+          </Routes>
+        </MemoryRouter>
+      </Provider>
+    );
+    expect(screen.getByText('from:/private')).toBeInTheDocument();
   });
 });

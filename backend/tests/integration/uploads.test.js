@@ -108,6 +108,27 @@ describe('POST /uploads/images', () => {
     expect(res.body.message).toMatch(/token missing/i);
   });
 
+  it('derives the saved extension from the validated mimetype, ignoring a spoofed originalname (stored-XSS regression)', async () => {
+    const user = await createUser();
+    let images = [];
+    try {
+      // Attacker-controlled: real image/png mimetype (passes fileFilter) paired
+      // with an .html originalname. The saved key must never end in .html —
+      // otherwise express.static would serve it back as text/html.
+      const res = await api()
+        .post('/api/v1/uploads/images')
+        .set(authFor(user))
+        .attach('images', PNG, { filename: 'evil.html', contentType: 'image/png' });
+
+      expect(res.status).toBe(200);
+      images = res.body.data.images;
+      expect(images[0].key).toMatch(/\.png$/);
+      expect(images[0].key).not.toMatch(/\.html$/);
+    } finally {
+      await cleanup(images);
+    }
+  });
+
   it('rejects a disallowed mimetype via the multer fileFilter (400)', async () => {
     const user = await createUser();
     const res = await api()

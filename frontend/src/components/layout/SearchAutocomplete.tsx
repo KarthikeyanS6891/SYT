@@ -25,12 +25,16 @@ const Highlighted: FC<{ text: string; query: string }> = ({ text, query }) => {
   if (!query.trim()) return <>{text}</>;
   const tokens = query.trim().split(/\s+/).filter(Boolean).map(escapeRegex);
   if (!tokens.length) return <>{text}</>;
-  const re = new RegExp(`(${tokens.join('|')})`, 'gi');
-  const parts = text.split(re);
+  const splitRe = new RegExp(`(${tokens.join('|')})`, 'gi');
+  // A separate, non-global regex for membership checks: `.test()` on a `g`-flag
+  // RegExp advances its shared `lastIndex` on every call, so reusing splitRe here
+  // across iterations would skip/misclassify tokens depending on prior matches.
+  const matchRe = new RegExp(`^(${tokens.join('|')})$`, 'i');
+  const parts = text.split(splitRe);
   return (
     <>
       {parts.map((p, i) =>
-        re.test(p) ? <mark key={i}>{p}</mark> : <span key={i}>{p}</span>
+        p && matchRe.test(p) ? <mark key={i}>{p}</mark> : <span key={i}>{p}</span>
       )}
     </>
   );

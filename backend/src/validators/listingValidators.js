@@ -40,13 +40,18 @@ export const updateListingValidator = [
 ];
 
 export const listListingValidator = [
-  query('q').optional().isString(),
+  query('q').optional().isString().isLength({ max: 200 }),
   query('category').optional().isMongoId(),
-  query('location').optional().isString(),
+  query('location').optional().isString().isLength({ max: 200 }),
   query('seller').optional().isMongoId(),
   query('minPrice').optional().isFloat({ min: 0 }),
   query('maxPrice').optional().isFloat({ min: 0 }),
   query('sort').optional().isIn(['latest', 'price_asc', 'price_desc', 'popular']),
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 50 }),
+];
+
+export const myListingsValidator = [
+  ...listListingValidator,
+  query('status').optional().isIn(['draft', 'published', 'sold', 'disabled']),
 ];

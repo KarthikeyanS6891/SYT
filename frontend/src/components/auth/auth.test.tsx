@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { Provider } from 'react-redux';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import {
   renderWithProviders,
+  makeStore,
   makeUser,
   screen,
+  render,
   waitFor,
   fireEvent,
   userEvent,
@@ -148,6 +152,30 @@ describe('AuthModal', () => {
     await waitFor(() => expect(store.getState().ui.authModal.open).toBe(false));
   });
 
+  it('navigates back to the originally-requested route after a successful login (regression: used to strand the user on "/")', async () => {
+    (authApi.login as any).mockResolvedValue(authSuccess({ name: 'Logged In' }));
+    const user = userEvent.setup();
+    const OnPost = () => <div>post-ad-page</div>;
+    render(
+      <Provider store={makeStore(openState('login'))}>
+        <MemoryRouter
+          initialEntries={[{ pathname: '/', state: { from: { pathname: '/post', search: '' } } }]}
+        >
+          <Routes>
+            <Route path="/" element={<AuthModal />} />
+            <Route path="/post" element={<OnPost />} />
+          </Routes>
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await user.type(screen.getByPlaceholderText('you@example.com'), 'jane@example.com');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+
+    await waitFor(() => expect(screen.getByText('post-ad-page')).toBeInTheDocument());
+  });
+
   it('submitting the register form dispatches registerThunk with all fields', async () => {
     (authApi.register as any).mockResolvedValue(authSuccess({ name: 'New User' }));
     const user = userEvent.setup();
@@ -209,6 +237,26 @@ describe('AuthModal', () => {
     expect(store.getState().ui.authModal.open).toBe(true);
     // the slice error is surfaced in the form
     expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+  });
+
+  it('clears the stale login error when switching to the Register tab (regression: shared auth.error field leaked across tabs)', async () => {
+    (authApi.login as any).mockRejectedValue({
+      response: { data: { message: 'Invalid credentials' } },
+    });
+    const user = userEvent.setup();
+    const { store } = renderWithProviders(<AuthModal />, {
+      preloadedState: openState('login'),
+    });
+
+    await user.type(screen.getByPlaceholderText('you@example.com'), 'jane@example.com');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+    await waitFor(() => expect(store.getState().auth.error).toBe('Invalid credentials'));
+
+    await user.click(screen.getByRole('tab', { name: 'Sign up' }));
+
+    expect(store.getState().auth.error).toBeNull();
+    expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
   });
 
   it('closing via the X button dispatches closeAuthModal', async () => {

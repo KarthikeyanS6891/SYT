@@ -379,6 +379,94 @@ describe('PostAd — edit mode', () => {
     expect(payload.longitude).toBeNull();
   });
 
+  it('locks the status select and omits status from the payload when editing a sold listing (regression: no silent republish)', async () => {
+    const soldListing = makeListing({ ...editListing, status: 'sold' });
+    (listingApi.get as any).mockResolvedValue({
+      data: { listing: soldListing, isFavorite: false },
+      meta: {},
+      message: 'OK',
+    });
+    (listingApi.update as any).mockResolvedValue({
+      data: { listing: soldListing },
+      meta: {},
+      message: 'OK',
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<PostAd />, {
+      preloadedState: authedState(),
+      route: '/post/L1',
+      path: '/post/:id',
+    });
+    await waitFor(() => expect(listingApi.get).toHaveBeenCalledWith('L1'));
+    await screen.findByRole('button', { name: /save changes/i });
+
+    const statusSelect = Array.from(document.querySelectorAll('select')).find((s) =>
+      Array.from(s.options).some((o) => o.value === 'published')
+    ) as HTMLSelectElement;
+    expect(statusSelect.disabled).toBe(true);
+    expect(screen.getByText(/this listing is sold/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => expect(listingApi.update).toHaveBeenCalledTimes(1));
+    const [, payload] = (listingApi.update as any).mock.calls[0];
+    expect(payload).not.toHaveProperty('status');
+  });
+
+  it('locks the status select when editing a disabled listing', async () => {
+    const disabledListing = makeListing({ ...editListing, status: 'disabled' });
+    (listingApi.get as any).mockResolvedValue({
+      data: { listing: disabledListing, isFavorite: false },
+      meta: {},
+      message: 'OK',
+    });
+    renderWithProviders(<PostAd />, {
+      preloadedState: authedState(),
+      route: '/post/L1',
+      path: '/post/:id',
+    });
+    await waitFor(() => expect(listingApi.get).toHaveBeenCalledWith('L1'));
+    await screen.findByRole('button', { name: /save changes/i });
+
+    const statusSelect = Array.from(document.querySelectorAll('select')).find((s) =>
+      Array.from(s.options).some((o) => o.value === 'published')
+    ) as HTMLSelectElement;
+    expect(statusSelect.disabled).toBe(true);
+    expect(screen.getByText(/this listing is disabled/i)).toBeInTheDocument();
+  });
+
+  it('leaves the status select editable and includes status in the payload for a published listing', async () => {
+    (listingApi.get as any).mockResolvedValue({
+      data: { listing: editListing, isFavorite: false },
+      meta: {},
+      message: 'OK',
+    });
+    (listingApi.update as any).mockResolvedValue({
+      data: { listing: editListing },
+      meta: {},
+      message: 'OK',
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<PostAd />, {
+      preloadedState: authedState(),
+      route: '/post/L1',
+      path: '/post/:id',
+    });
+    await waitFor(() => expect(listingApi.get).toHaveBeenCalledWith('L1'));
+    await screen.findByRole('button', { name: /save changes/i });
+
+    const statusSelect = Array.from(document.querySelectorAll('select')).find((s) =>
+      Array.from(s.options).some((o) => o.value === 'published')
+    ) as HTMLSelectElement;
+    expect(statusSelect.disabled).toBe(false);
+
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => expect(listingApi.update).toHaveBeenCalledTimes(1));
+    const [, payload] = (listingApi.update as any).mock.calls[0];
+    expect(payload.status).toBe('published');
+  });
+
   it('navigates to /my-listings and toasts when get() fails', async () => {
     (listingApi.get as any).mockRejectedValue(new Error('not found'));
     renderWithProviders(<PostAd />, {

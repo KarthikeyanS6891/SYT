@@ -10,7 +10,7 @@ import { Loader } from '@/components/common/Loader';
 import { ImageUploader } from '@/components/listings/ImageUploader';
 import { LocationPicker } from '@/components/map/LocationPicker';
 import type { LatLng } from '@/components/map/leaflet';
-import type { Category, Listing, ListingImage } from '@/types';
+import type { Category, Listing, ListingImage, ListingStatus } from '@/types';
 
 interface FormData {
   title: string;
@@ -30,6 +30,8 @@ export default function PostAd() {
   const [images, setImages] = useState<ListingImage[]>([]);
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [loading, setLoading] = useState(isEdit);
+  const [originalStatus, setOriginalStatus] = useState<ListingStatus | null>(null);
+  const statusLocked = isEdit && (originalStatus === 'sold' || originalStatus === 'disabled');
   const {
     register, handleSubmit, reset, getValues, setValue, formState: { errors, isSubmitting },
   } = useForm<FormData>({
@@ -53,8 +55,13 @@ export default function PostAd() {
           price: l.price,
           condition: l.condition,
           location: l.location,
+          // The status <select> only offers draft/published; sold/disabled listings
+          // are shown here for display purposes only and are excluded from the
+          // submitted payload below (see statusLocked) so saving never silently
+          // republishes a sold/disabled listing.
           status: l.status === 'sold' || l.status === 'disabled' ? 'published' : (l.status as any),
         });
+        setOriginalStatus(l.status);
         setImages(l.images);
         setCoords(
           l.geo?.coordinates
@@ -75,7 +82,7 @@ export default function PostAd() {
       return;
     }
     try {
-      const payload = {
+      const payload: Partial<FormData> & Record<string, unknown> = {
         ...data,
         price: Number(data.price),
         images,
@@ -83,6 +90,9 @@ export default function PostAd() {
         latitude: coords?.lat ?? (isEdit ? null : undefined),
         longitude: coords?.lng ?? (isEdit ? null : undefined),
       };
+      // Sold/disabled listings don't expose a real status option in the form
+      // (see statusLocked); never send the coerced 'published' placeholder back.
+      if (statusLocked) delete payload.status;
       if (isEdit && id) {
         await listingApi.update(id, payload);
         toast.success('Listing updated');
@@ -166,6 +176,8 @@ export default function PostAd() {
 
         <Select
           label="Status"
+          disabled={statusLocked}
+          hint={statusLocked ? `This listing is ${originalStatus} and can't be changed here.` : undefined}
           options={[
             { value: 'published', label: 'Published' },
             { value: 'draft', label: 'Draft' },

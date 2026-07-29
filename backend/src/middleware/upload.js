@@ -8,15 +8,18 @@ import { AppError } from '../utils/AppError.js';
 const uploadPath = path.join(rootDir, config.storage.uploadDir);
 if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadPath),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${Date.now()}-${uuidv4()}${ext}`);
-  },
-});
+// Extension is derived from the validated MIME type below, never from the
+// client-supplied `originalname` — otherwise an attacker can send a real
+// image mimetype (passes fileFilter) with originalname "evil.html" and get
+// stored-XSS served from /static with an attacker-chosen Content-Type.
+const MIME_TO_EXT = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+};
 
-const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const allowed = Object.keys(MIME_TO_EXT);
 
 const fileFilter = (_req, file, cb) => {
   if (!allowed.includes(file.mimetype)) {
@@ -24,6 +27,15 @@ const fileFilter = (_req, file, cb) => {
   }
   cb(null, true);
 };
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadPath),
+  filename: (_req, file, cb) => {
+    const ext = MIME_TO_EXT[file.mimetype];
+    if (!ext) return cb(AppError.badRequest('Only JPG, PNG, WEBP, GIF images allowed'));
+    cb(null, `${Date.now()}-${uuidv4()}${ext}`);
+  },
+});
 
 export const upload = multer({
   storage,

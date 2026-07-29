@@ -39,10 +39,10 @@ const meResult = (user = makeUser()) => ({
 });
 
 // A fake axios error whose shape errorMessage() understands.
-const apiError = (message: string) => ({
+const apiError = (message: string, status = 401) => ({
   isAxiosError: true,
   message: 'Request failed',
-  response: { data: { message } },
+  response: { status, data: { message } },
 });
 
 const freshStore = () => makeStore();
@@ -273,9 +273,9 @@ describe('bootstrapAuth', () => {
     expect(state.initialized).toBe(true);
   });
 
-  it('with a token, me() failure clears tokens and leaves unauthenticated + initialized', async () => {
+  it('with a token, me() 401 failure clears tokens and leaves unauthenticated + initialized', async () => {
     tokenStorage.set('access-tok', 'refresh-tok');
-    (authApi.me as any).mockRejectedValue(apiError('Unauthorized'));
+    (authApi.me as any).mockRejectedValue(apiError('Unauthorized', 401));
     const clearSpy = vi.spyOn(tokenStorage, 'clear');
     const store = freshStore();
 
@@ -289,6 +289,34 @@ describe('bootstrapAuth', () => {
     expect(state.user).toBeNull();
     expect(state.status).toBe('unauthenticated');
     expect(state.initialized).toBe(true);
+  });
+
+  it('with a token, me() network/5xx failure does NOT clear tokens (regression: a transient blip used to silently log the user out)', async () => {
+    tokenStorage.set('access-tok', 'refresh-tok');
+    (authApi.me as any).mockRejectedValue(apiError('Server error', 500));
+    const clearSpy = vi.spyOn(tokenStorage, 'clear');
+    const store = freshStore();
+
+    const result = await store.dispatch(bootstrapAuth());
+
+    expect(bootstrapAuth.rejected.match(result)).toBe(true);
+    expect(clearSpy).not.toHaveBeenCalled();
+    expect(localStorage.getItem(TOKEN_KEY)).toBe('access-tok');
+    expect(localStorage.getItem(REFRESH_KEY)).toBe('refresh-tok');
+    const state = store.getState().auth;
+    expect(state.status).toBe('unauthenticated');
+  });
+
+  it('with a token, a network error with no response at all does NOT clear tokens', async () => {
+    tokenStorage.set('access-tok', 'refresh-tok');
+    (authApi.me as any).mockRejectedValue({ isAxiosError: true, message: 'Network Error' });
+    const clearSpy = vi.spyOn(tokenStorage, 'clear');
+    const store = freshStore();
+
+    await store.dispatch(bootstrapAuth());
+
+    expect(clearSpy).not.toHaveBeenCalled();
+    expect(localStorage.getItem(TOKEN_KEY)).toBe('access-tok');
   });
 
   it('sets status "loading" while pending', () => {

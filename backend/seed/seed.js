@@ -175,6 +175,13 @@ const buildListings = (users, cats) => {
 };
 
 async function run() {
+  if (config.env === 'production') {
+    throw new Error(
+      '[seed] refusing to run against NODE_ENV=production — this script deletes ' +
+        'every User/Category/Listing/Favorite/Conversation/Message document.'
+    );
+  }
+
   console.log('[seed] connecting to', config.mongoUri);
   await mongoose.connect(config.mongoUri);
 

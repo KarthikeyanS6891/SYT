@@ -1,10 +1,11 @@
 import { FC, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { closeAuthModal, setAuthMode } from '@/store/slices/uiSlice';
-import { loginThunk, registerThunk } from '@/store/slices/authSlice';
+import { loginThunk, registerThunk, clearError } from '@/store/slices/authSlice';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { Logo } from '@/components/common/Logo';
@@ -118,8 +119,28 @@ const RegisterPanel: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
 export const AuthModal: FC = () => {
   const dispatch = useAppDispatch();
   const { open, mode } = useAppSelector((s) => s.ui.authModal);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const close = () => dispatch(closeAuthModal());
+
+  // Distinct from close(): only a successful login/register/Google sign-in should
+  // send the user back to whatever protected route redirected them here (see
+  // PrivateRoute, which stashes it as location.state.from). Just dismissing the
+  // modal must never navigate anywhere.
+  const onAuthSuccess = () => {
+    dispatch(closeAuthModal());
+    const from = (location.state as { from?: { pathname: string; search: string } } | null)?.from;
+    if (from) navigate(`${from.pathname}${from.search || ''}`, { replace: true });
+  };
+
+  // auth.error is a single shared field for both the login and register flows;
+  // without this, a failed login's error message stays visible after switching
+  // to the Register tab (and vice versa).
+  const switchMode = (next: 'login' | 'register') => {
+    dispatch(clearError());
+    dispatch(setAuthMode(next));
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -164,7 +185,7 @@ export const AuthModal: FC = () => {
             role="tab"
             aria-selected={mode === 'login'}
             className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
-            onClick={() => dispatch(setAuthMode('login'))}
+            onClick={() => switchMode('login')}
           >
             Login
           </button>
@@ -173,7 +194,7 @@ export const AuthModal: FC = () => {
             role="tab"
             aria-selected={mode === 'register'}
             className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
-            onClick={() => dispatch(setAuthMode('register'))}
+            onClick={() => switchMode('register')}
           >
             Sign up
           </button>
@@ -185,9 +206,9 @@ export const AuthModal: FC = () => {
         </h2>
 
         {mode === 'login' ? (
-          <LoginPanel onSuccess={close} />
+          <LoginPanel onSuccess={onAuthSuccess} />
         ) : (
-          <RegisterPanel onSuccess={close} />
+          <RegisterPanel onSuccess={onAuthSuccess} />
         )}
 
         <div className="auth-modal-divider">
@@ -195,21 +216,21 @@ export const AuthModal: FC = () => {
         </div>
         <GoogleSignInButton
           text={mode === 'login' ? 'signin_with' : 'signup_with'}
-          onSuccess={close}
+          onSuccess={onAuthSuccess}
         />
 
         <div className="auth-modal-foot">
           {mode === 'login' ? (
             <>
               New here?{' '}
-              <button type="button" className="link-btn" onClick={() => dispatch(setAuthMode('register'))}>
+              <button type="button" className="link-btn" onClick={() => switchMode('register')}>
                 Create an account
               </button>
             </>
           ) : (
             <>
               Already have an account?{' '}
-              <button type="button" className="link-btn" onClick={() => dispatch(setAuthMode('login'))}>
+              <button type="button" className="link-btn" onClick={() => switchMode('login')}>
                 Login instead
               </button>
             </>

@@ -11,6 +11,7 @@ import { config, rootDir } from './config/index.js';
 import routes from './routes/index.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { AppError } from './utils/AppError.js';
 
 const app = express();
 
@@ -26,7 +27,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || config.corsOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error(`CORS blocked: ${origin}`));
+      return callback(AppError.forbidden('CORS: origin not allowed'));
     },
     credentials: true,
   })

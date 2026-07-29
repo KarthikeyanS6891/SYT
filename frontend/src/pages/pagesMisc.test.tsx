@@ -273,6 +273,27 @@ describe('Chat', () => {
     expect(typingCall).toBeTruthy();
     expect(typingCall![1]).toMatchObject({ conversationId: 'c1', isTyping: true });
   });
+
+  it('does not emit a stale chat:typing(false) after the component unmounts (regression: pending timer left running)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ delay: null });
+    const { unmount } = renderWithProviders(<Chat />, {
+      preloadedState: authedState({ _id: 'me', name: 'Me' }),
+      route: '/chat/c1',
+      path: '/chat/:id',
+    });
+
+    const input = await screen.findByPlaceholderText('Type a message');
+    await user.type(input, 'H');
+    fakeSocket.emit.mockClear();
+
+    unmount();
+    vi.advanceTimersByTime(2000);
+
+    const staleTypingCall = fakeSocket.emit.mock.calls.find((c) => c[0] === 'chat:typing');
+    expect(staleTypingCall).toBeUndefined();
+    vi.useRealTimers();
+  });
 });
 
 // ===========================================================================

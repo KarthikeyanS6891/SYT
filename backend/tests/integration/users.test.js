@@ -158,6 +158,16 @@ describe('POST /users/me/password', () => {
     expect(withOld.status).toBe(401);
   });
 
+  it('rejects with 400 (not a 500) for a Google-only account with no password set', async () => {
+    const user = await createUser({ password: null, googleId: 'google-sub-123' });
+    const res = await api()
+      .post('/api/v1/users/me/password')
+      .set(authFor(user))
+      .send({ currentPassword: 'anything', newPassword: 'newpassword456' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/no password set/i);
+  });
+
   it('rejects a wrong currentPassword with 401', async () => {
     const user = await createUser();
     const res = await api()
