@@ -1,5 +1,8 @@
 import { User } from '../models/User.js';
 
+// See listingRepository.escapeRegex — user input must never reach $regex unescaped.
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const userRepository = {
   findById: (id, options = {}) => User.findById(id, null, options),
   findByEmail: (email, { withPassword = false } = {}) => {
@@ -20,9 +23,10 @@ export const userRepository = {
   list: ({ page = 1, limit = 20, q } = {}) => {
     const filter = {};
     if (q) {
+      const escaped = escapeRegex(q);
       filter.$or = [
-        { name: { $regex: q, $options: 'i' } },
-        { email: { $regex: q, $options: 'i' } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { email: { $regex: escaped, $options: 'i' } },
       ];
     }
     return Promise.all([

@@ -167,6 +167,11 @@ describe('userRepository', () => {
     const [byEmail, emailTotal] = await userRepository.list({ q: 'needle' });
     expect(emailTotal).toBe(1);
     expect(byEmail[0].email).toBe('special-needle@mailbox.com');
+
+    // regex metacharacters in q are escaped, not interpreted
+    const [byMeta, metaTotal] = await userRepository.list({ q: '.*' });
+    expect(metaTotal).toBe(0);
+    expect(byMeta).toHaveLength(0);
   });
 
   it('list({ page, limit }) paginates with skip/limit', async () => {
@@ -386,8 +391,6 @@ describe('conversationRepository', () => {
     const me = await createUser();
     const other1 = await createUser();
     const other2 = await createUser();
-    // Distinct listings: the unique { participants, listing } index is multikey,
-    // so two conversations that both include `me` on the same listing would collide.
     const listing1 = await createListing({ seller: me });
     const listing2 = await createListing({ seller: me });
 
@@ -425,6 +428,34 @@ describe('conversationRepository', () => {
 
     const convos = await conversationRepository.listForUser({ userId: me._id });
     expect(convos).toHaveLength(0);
+  });
+
+  it('findByListingAndUsers() finds separate conversations for two different buyers on the same listing', async () => {
+    const seller = await createUser();
+    const buyer1 = await createUser();
+    const buyer2 = await createUser();
+    const listing = await createListing({ seller });
+
+    const convo1 = await conversationRepository.create({
+      listing: listing._id,
+      participants: [buyer1._id, seller._id],
+    });
+    const convo2 = await conversationRepository.create({
+      listing: listing._id,
+      participants: [buyer2._id, seller._id],
+    });
+
+    const found1 = await conversationRepository.findByListingAndUsers(listing._id, [
+      buyer1._id,
+      seller._id,
+    ]);
+    const found2 = await conversationRepository.findByListingAndUsers(listing._id, [
+      buyer2._id,
+      seller._id,
+    ]);
+
+    expect(found1._id.toString()).toBe(convo1._id.toString());
+    expect(found2._id.toString()).toBe(convo2._id.toString());
   });
 });
 

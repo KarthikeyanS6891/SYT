@@ -26,10 +26,28 @@ const conversationSchema = new mongoose.Schema(
       of: Number,
       default: () => new Map(),
     },
+    // Sorted, joined participant IDs. Used instead of a raw unique index on the
+    // `participants` array, because Mongo treats array fields as multikey indexes
+    // (one index entry per element), which lets unrelated participant sets collide
+    // on a shared element (see backend/src/models/Conversation.js history / REVIEW.md).
+    participantsKey: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-conversationSchema.index({ participants: 1, listing: 1 }, { unique: true });
+conversationSchema.pre('validate', function computeParticipantsKey(next) {
+  if (this.participants && this.participants.length) {
+    this.participantsKey = this.participants
+      .map((p) => String(p))
+      .sort()
+      .join('_');
+  }
+  next();
+});
+
+conversationSchema.index({ participantsKey: 1, listing: 1 }, { unique: true });
 
 export const Conversation = mongoose.model('Conversation', conversationSchema);

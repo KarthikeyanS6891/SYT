@@ -1,13 +1,18 @@
 import { Listing } from '../models/Listing.js';
 import { Category } from '../models/Category.js';
 
+// Mirrors searchService.escapeRegex: user input must never reach $regex unescaped,
+// or a crafted value with nested quantifiers can cause catastrophic backtracking
+// (ReDoS) on this public, unauthenticated endpoint.
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const buildFilter = ({ q, categoryIds, location, minPrice, maxPrice, status, seller }) => {
   const filter = {};
   if (status) filter.status = status;
   if (categoryIds && categoryIds.length === 1) filter.category = categoryIds[0];
   else if (categoryIds && categoryIds.length > 1) filter.category = { $in: categoryIds };
   if (seller) filter.seller = seller;
-  if (location) filter.location = { $regex: location, $options: 'i' };
+  if (location) filter.location = { $regex: escapeRegex(location), $options: 'i' };
   if (minPrice !== undefined || maxPrice !== undefined) {
     filter.price = {};
     if (minPrice !== undefined) filter.price.$gte = Number(minPrice);

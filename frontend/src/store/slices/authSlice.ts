@@ -24,7 +24,12 @@ export const bootstrapAuth = createAsyncThunk('auth/bootstrap', async (_, { reje
     const { data } = await authApi.me();
     return data.user as User;
   } catch (err) {
-    tokenStorage.clear();
+    // Only clear tokens on an actual auth failure (401 — the axios interceptor
+    // already does this itself once its own refresh attempt fails). A transient
+    // network error or a 5xx from /auth/me does not mean the session is invalid;
+    // wiping tokens here would log the user out over a blip they could recover from.
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 401) tokenStorage.clear();
     return rejectWithValue(errorMessage(err));
   }
 });
@@ -95,6 +100,9 @@ const authSlice = createSlice({
       state.status = 'unauthenticated';
       state.error = null;
     },
+    clearError(state) {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -154,5 +162,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, clear } = authSlice.actions;
+export const { setUser, clear, clearError } = authSlice.actions;
 export default authSlice.reducer;

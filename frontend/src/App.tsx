@@ -1,12 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { PrivateRoute } from '@/components/common/PrivateRoute';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { bootstrapAuth, clear } from '@/store/slices/authSlice';
-import { closeAuthModal } from '@/store/slices/uiSlice';
+import { closeAuthModal, setUnread } from '@/store/slices/uiSlice';
 import { tokenStorage } from '@/services/api';
+import { disconnectSocket, getSocket, reconnectSocketWithToken } from '@/services/socket';
+import { messageApi } from '@/services/messageService';
 import { useThemeBootstrap } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -42,6 +44,59 @@ export default function App() {
   useEffect(() => {
     if (user && authModalOpen) dispatch(closeAuthModal());
   }, [user, authModalOpen, dispatch]);
+
+  // Keep the chat socket's identity in sync with the authenticated user. Without
+  // this, a socket connected as one user stays connected (with that user's stale
+  // auth handshake) across logout/login on the same tab, since getSocket() reuses
+  // any still-connected instance regardless of which account is now active.
+  const prevUserId = useRef<string | null>(null);
+  useEffect(() => {
+    const currentId = user?._id ?? null;
+    if (currentId !== prevUserId.current) {
+      if (currentId) {
+        reconnectSocketWithToken();
+      } else if (prevUserId.current) {
+        disconnectSocket();
+      }
+      prevUserId.current = currentId;
+    }
+  }, [user?._id]);
+
+  // Keep the navbar's unread badge live app-wide, not just while the user is on
+  // /chat: fetch the current total on login, then keep it fresh as new messages
+  // arrive over the socket (previously bumpUnread/resetUnread were unused dead
+  // code and the badge only ever reflected a stale, last-visited-/chat value).
+  useEffect(() => {
+    if (!user) {
+      dispatch(setUnread(0));
+      return;
+    }
+    let active = true;
+    const refreshUnread = async () => {
+      try {
+        const { data } = await messageApi.conversations();
+        if (!active) return;
+        const total = data.items.reduce(
+          (acc, c) => acc + Number((c.unread as any)?.[user._id] || 0),
+          0
+        );
+        dispatch(setUnread(total));
+      } catch {
+        /* ignore — badge just stays at its last known value */
+      }
+    };
+    refreshUnread();
+
+    const socket = getSocket();
+    socket.on('chat:notify', refreshUnread);
+    socket.on('chat:message', refreshUnread);
+    return () => {
+      active = false;
+      socket.off('chat:notify', refreshUnread);
+      socket.off('chat:message', refreshUnread);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id, dispatch]);
 
   return (
     <>

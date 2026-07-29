@@ -65,14 +65,15 @@ describe('CORS origin policy', () => {
     expect(res.headers['access-control-allow-credentials']).toBe('true');
   });
 
-  it('blocks a disallowed origin via the cors error path (500, "CORS blocked")', async () => {
+  it('blocks a disallowed origin via the cors error path (403, no origin leaked)', async () => {
     const res = await api().get('/api/v1/health').set('Origin', 'http://evil.example');
-    // The cors origin callback throws `new Error("CORS blocked: ...")`, which has
-    // no statusCode, so errorHandler falls back to 500.
-    expect(res.status).toBe(500);
+    // The cors origin callback rejects with an AppError.forbidden(), so
+    // errorHandler surfaces it as a clean 403 instead of a generic 500 — and the
+    // message no longer echoes the blocked origin back to the caller.
+    expect(res.status).toBe(403);
     expect(res.body.success).toBe(false);
-    expect(res.body.message).toMatch(/CORS blocked/);
-    expect(res.body.message).toMatch(/http:\/\/evil\.example/);
+    expect(res.body.message).toMatch(/CORS/i);
+    expect(res.body.message).not.toMatch(/evil\.example/);
     // A blocked request must not carry an allow-origin header for the bad origin.
     expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
@@ -85,7 +86,7 @@ describe('CORS origin policy', () => {
 
   it('blocks a disallowed origin even on the root route', async () => {
     const res = await api().get('/').set('Origin', 'http://evil.example');
-    expect(res.status).toBe(500);
-    expect(res.body.message).toMatch(/CORS blocked/);
+    expect(res.status).toBe(403);
+    expect(res.body.message).toMatch(/CORS/i);
   });
 });

@@ -33,6 +33,9 @@ export const userService = {
   async changePassword(userId, { currentPassword, newPassword }) {
     const user = await User.findById(userId).select('+password');
     if (!user) throw AppError.notFound('User not found');
+    if (!user.password) {
+      throw AppError.badRequest('No password set for this account (signed up with Google)');
+    }
     const ok = await bcrypt.compare(currentPassword, user.password);
     if (!ok) throw AppError.unauthorized('Current password incorrect');
     user.password = newPassword;

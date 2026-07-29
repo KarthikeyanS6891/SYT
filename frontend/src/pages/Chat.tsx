@@ -104,6 +104,13 @@ export default function Chat() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
+  useEffect(
+    () => () => {
+      if (typingTimer.current) clearTimeout(typingTimer.current);
+    },
+    []
+  );
+
   const onTypingChange = (val: string) => {
     setDraft(val);
     if (!id) return;

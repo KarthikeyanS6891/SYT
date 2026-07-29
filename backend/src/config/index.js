@@ -15,6 +15,9 @@ const required = (name, fallback) => {
   return value;
 };
 
+const DEV_JWT_ACCESS_SECRET = 'dev_access_secret_change_me';
+const DEV_JWT_REFRESH_SECRET = 'dev_refresh_secret_change_me';
+
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
@@ -23,8 +26,8 @@ export const config = {
   mongoUri: required('MONGODB_URI', 'mongodb://localhost:27017/syt_marketplace'),
 
   jwt: {
-    accessSecret: required('JWT_ACCESS_SECRET', 'dev_access_secret_change_me'),
-    refreshSecret: required('JWT_REFRESH_SECRET', 'dev_refresh_secret_change_me'),
+    accessSecret: required('JWT_ACCESS_SECRET', DEV_JWT_ACCESS_SECRET),
+    refreshSecret: required('JWT_REFRESH_SECRET', DEV_JWT_REFRESH_SECRET),
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
   },
@@ -55,5 +58,19 @@ export const config = {
     max: parseInt(process.env.RATE_LIMIT_MAX || '300', 10),
   },
 };
+
+if (config.env === 'production') {
+  if (
+    config.jwt.accessSecret === DEV_JWT_ACCESS_SECRET ||
+    config.jwt.refreshSecret === DEV_JWT_REFRESH_SECRET
+  ) {
+    throw new Error(
+      'JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be set to non-default values when NODE_ENV=production'
+    );
+  }
+  if (config.jwt.accessSecret === config.jwt.refreshSecret) {
+    throw new Error('JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must not be equal');
+  }
+}
 
 export const rootDir = path.resolve(__dirname, '../..');

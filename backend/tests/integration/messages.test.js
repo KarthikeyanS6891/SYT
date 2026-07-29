@@ -75,6 +75,26 @@ describe('POST /messages/conversations (start)', () => {
     expect(await Message.countDocuments()).toBe(2);
   });
 
+  it('allows a second, different buyer to start a conversation about the same listing (201)', async () => {
+    // Regression test for the multikey-unique-index bug: participants is an array,
+    // so a naive unique index on { participants, listing } collides once the seller
+    // is shared across two otherwise-distinct conversations.
+    const seller = await createUser();
+    const buyer1 = await createUser();
+    const buyer2 = await createUser();
+    const listing = await createListing({ seller });
+
+    const first = await startConvo(buyer1, listing, 'Is this still available?');
+    const second = await startConvo(buyer2, listing, 'I am interested too!');
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+    expect(second.body.data.conversation._id).not.toBe(first.body.data.conversation._id);
+
+    expect(await Conversation.countDocuments()).toBe(2);
+    expect(await Message.countDocuments()).toBe(2);
+  });
+
   it('rejects messaging your OWN listing with 400', async () => {
     const owner = await createUser();
     const listing = await createListing({ seller: owner });

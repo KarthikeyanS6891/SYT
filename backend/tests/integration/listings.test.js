@@ -191,6 +191,25 @@ describe('GET /listings (list & filters)', () => {
     expect(res.body.data.items[0].location).toBe('Chennai');
   });
 
+  it('treats regex metacharacters in location as literal text instead of throwing/matching everything', async () => {
+    // Regression test: location must be regex-escaped before being passed to
+    // $regex, otherwise metacharacters change the query's meaning entirely
+    // (or, with nested quantifiers, risk catastrophic backtracking).
+    await createListing({ location: 'Bengaluru' });
+    await createListing({ location: 'Chennai' });
+
+    const res = await api().get('/api/v1/listings').query({ location: '.*' });
+    // '.*' should be searched for literally (no match), not interpreted as "match everything".
+    expect(res.body.data.items).toHaveLength(0);
+  });
+
+  it('rejects an overly long location query with 400', async () => {
+    const res = await api()
+      .get('/api/v1/listings')
+      .query({ location: 'a'.repeat(201) });
+    expect(res.status).toBe(400);
+  });
+
   it('filters by price range', async () => {
     await createListing({ price: 500 });
     await createListing({ price: 5000 });
@@ -271,6 +290,24 @@ describe('GET /listings/mine', () => {
   it('requires authentication', async () => {
     const res = await api().get('/api/v1/listings/mine');
     expect(res.status).toBe(401);
+  });
+
+  it('rejects a negative page with 400 instead of throwing a 500 on a negative skip', async () => {
+    const owner = await createUser();
+    const res = await api()
+      .get('/api/v1/listings/mine')
+      .query({ page: -5 })
+      .set(authFor(owner));
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an invalid status filter with 400', async () => {
+    const owner = await createUser();
+    const res = await api()
+      .get('/api/v1/listings/mine')
+      .query({ status: 'not-a-real-status' })
+      .set(authFor(owner));
+    expect(res.status).toBe(400);
   });
 });
 

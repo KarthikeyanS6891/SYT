@@ -6,12 +6,13 @@ import {
   createListingValidator,
   updateListingValidator,
   listListingValidator,
+  myListingsValidator,
 } from '../validators/listingValidators.js';
 
 const router = Router();
 
 router.get('/', optionalAuth, listListingValidator, validate, ctrl.listListings);
-router.get('/mine', authenticate, ctrl.myListings);
+router.get('/mine', authenticate, myListingsValidator, validate, ctrl.myListings);
 router.get('/:id', optionalAuth, ctrl.getListing);
 router.get('/:id/similar', ctrl.similarListings);
 
